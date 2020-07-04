@@ -1,11 +1,12 @@
 {
-  "name": "TODO",
-  "description": "TODO",
+  "name": "Syncs.info",
+  "description": "Sync your info amongst peers",
   "version": "0.0.1",
   "scripts": {
-    "dev": "sapper dev",
-    "build": "sapper build",
-    "export": "sapper export",
+    "vercel dev": "vercel dev",
+    "dev": "sapper dev --port 3000",
+    "build": "sapper export",
+    "export": "sapper export SAPPER_TIMESTAMP=$(date +%s%3N)",
     "start": "node __sapper__/build",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
@@ -23,5 +24,7 @@
     "svelte": "^3.0.0",
     "svelte-loader": "^2.9.0",
     "webpack": "^4.7.0"
-  }
+  },
+  "repository": "https://github.com/DougAnderson444/syncs.info",
+  "license": "GNU GPL v3"
 }
