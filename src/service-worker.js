@@ -12,7 +12,6 @@ const to_cache = shell.concat(files);
 const cached = new Set(to_cache);
 
 self.addEventListener("install", (event) => {
-  console.log(`installed sw`);
   event.waitUntil(
     caches
       .open(ASSETS)
@@ -25,28 +24,42 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then(async (keys) => {
-        // delete old caches
-        for (const key of keys) {
-          if (key !== ASSETS) await caches.delete(key);
-        }
-      })
-      .then(async () => {
-        // start the ipfs node
-        try {
-          let ipfs = await node.getNode();
-          ipfsNode = ipfs;
-          const { agentVersion, id } = await ipfs.id();
-          console.log(`The SW node id is `, id);
-        } catch (error) {
-          console.log(err);
-        }
+    caches.keys().then(async (keys) => {
+      // delete old caches
+      for (const key of keys) {
+        if (key !== ASSETS) await caches.delete(key);
+      }
 
-        self.clients.claim(); // claim control of the service worker business
-      })
+      await nodeGetter();
+
+      self.clients.claim(); // claim control of the service worker business
+    })
   );
+});
+
+async function nodeGetter() {
+  // start the ipfs node
+  try {
+    let ipfs = await node.getNode();
+    ipfsNode = ipfs;
+    const { agentVersion, id } = await ipfs.id();
+    console.log(`The SW node id is `, id);
+  } catch (error) {
+    console.log(err);
+  }
+}
+
+self.addEventListener("message", async (event) => {
+  var senderID = event.source.id;
+  console.log(event.data);
+  console.log(`...from ${senderID}`);
+  if (event.data == "startIPFSNode") {
+    console.log(`Start node in dormant S.W.`);
+    await nodeGetter();
+    //reply when done
+    console.log('send msg back')
+    event.ports[0].postMessage({'test': 'This is my response.'});
+  }
 });
 
 self.addEventListener("fetch", (event) => {

@@ -45,7 +45,7 @@ import ServiceWorker from '../components/serviceWorker'
 <h1>Great success!</h1>
 
 <figure>
-	<img alt='Success Kid' src='successkid.jpg'>
+	<img alt='OK' src='ok.png'>
 	<figcaption>Have fun with Sapper!</figcaption>
 </figure>
 
