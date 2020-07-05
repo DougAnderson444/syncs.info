@@ -1,18 +1,19 @@
 {
+	"gcm_sender_id": "958213794693",
 	"background_color": "#ffffff",
 	"theme_color": "#333333",
-	"name": "TODO",
-	"short_name": "TODO",
+	"name": "Syncs.info",
+	"short_name": "Syncs.info",
 	"display": "minimal-ui",
 	"start_url": "/",
 	"icons": [
 		{
-			"src": "logo-192.png",
-			"sizes": "192x192",
+			"src": "syncs-logo-192.png",
+			"sizes": "109x109",
 			"type": "image/png"
 		},
 		{
-			"src": "logo-512.png",
+			"src": "syncs-logo-512.png",
 			"sizes": "512x512",
 			"type": "image/png"
 		}
