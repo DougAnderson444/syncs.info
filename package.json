@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "compression": "^1.7.1",
+    "ipfs": "^0.47.0",
+    "ipfs-postmsg-proxy": "^3.1.1",
     "polka": "next",
     "sapper-environment": "^1.0.1",
     "sirv": "^0.4.0"
@@ -26,5 +28,5 @@
     "webpack": "^4.7.0"
   },
   "repository": "https://github.com/DougAnderson444/syncs.info",
-  "license": "GNU GPL v3"
+  "license": "GPL-3.0-or-later"
 }
