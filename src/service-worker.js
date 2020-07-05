@@ -52,7 +52,6 @@ async function nodeGetter() {
 self.addEventListener("message", async (event) => {
   var senderID = event.source.id;
   console.log(event.data);
-  console.log(`...from ${senderID}`);
   if (event.data == "startIPFSNode") {
     console.log(`Start node in dormant S.W.`);
     await nodeGetter();

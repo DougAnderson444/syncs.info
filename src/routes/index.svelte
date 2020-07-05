@@ -41,7 +41,7 @@
 </style>
 
 <svelte:head>
-  <title>Sapper project template</title>
+  <title>Syncs.info</title>
 </svelte:head>
 
 <h1>Great success!</h1>
@@ -52,7 +52,7 @@
     <figcaption>Loading... wait for it... aaaaand,</figcaption>
   {:else}
     <img alt="OK" src="ok.png" />
-    <figcaption>Have fun with Sapper!</figcaption>
+    <figcaption>Have fun as a user syncs.info!</figcaption>
   {/if}
 </figure>
 
