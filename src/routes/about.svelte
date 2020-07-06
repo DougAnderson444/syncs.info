@@ -1,7 +1,12 @@
 <svelte:head>
-	<title>About</title>
+	<title>About Syncs.Info</title>
 </svelte:head>
 
-<h1>About this site</h1>
+<h1>About syncs.info</h1>
 
-<p>This is the 'about' page. There's not much here.</p>
+<p>This site allows you to sync your info amongst your peers.</p>
+<p>Your data, your way.</p>
+<p>Syncs.info is about connecting your data, not collecting your data.</p>
+<p>
+Github: <a href="https://github.com/DougAnderson444/syncs.info" target="_blank">https://github.com/DougAnderson444/syncs.info</a>
+</p>
