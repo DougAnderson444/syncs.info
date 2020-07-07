@@ -1,5 +1,5 @@
 {
-  "name": "Syncs.info",
+  "name": "SyncsInfo",
   "description": "Sync your info amongst peers",
   "version": "0.0.1",
   "scripts": {
@@ -15,7 +15,7 @@
   "dependencies": {
     "compression": "^1.7.1",
     "ipfs": "^0.47.0",
-    "ipfs-postmsg-proxy": "^3.1.1",
+    "ipfs-postmsg-proxy": "DougAnderson444/ipfs-postmsg-proxy",
     "polka": "next",
     "sapper-environment": "^1.0.1",
     "sirv": "^0.4.0"
