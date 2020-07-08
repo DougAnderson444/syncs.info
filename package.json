@@ -15,7 +15,6 @@
   "dependencies": {
     "compression": "^1.7.1",
     "ipfs": "^0.47.0",
-    "ipfs-postmsg-proxy": "DougAnderson444/ipfs-postmsg-proxy",
     "polka": "next",
     "sapper-environment": "^1.0.1",
     "sirv": "^0.4.0"

@@ -79,14 +79,14 @@
 <div class="container">
   <center>
     {#if !nodeId}
-      <div class="placeholder" out:fade>
+      <div class="placeholder" out:fade="{{ duration: 1500 }}">
         <figure class="below">
           <img class="below" alt="Wait" src="wait-for-it.png" />
           <figcaption>Loading...</figcaption>
         </figure>
       </div>
     {:else}
-      <div class="replacement" in:fade>
+      <div class="replacement" in:fade="{{ duration: 1500 }}">
         <figure>
           <img alt="OK" src="ok.png" />
           <figcaption>Have fun as a user syncs.info!</figcaption>

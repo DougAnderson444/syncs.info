@@ -4,7 +4,6 @@
  *
  */
 
-const { createProxyClient } = require("ipfs-postmsg-proxy"); // How this module talking to the service worker
 let ipfs;
 
 export async function init() {
@@ -16,31 +15,68 @@ export async function init() {
       { scope: "/" }
     );
 
+    var serviceWorker;
+    if (registration.installing) {
+      serviceWorker = registration.installing;
+    } else if (registration.waiting) {
+      serviceWorker = registration.waiting;
+    } else if (registration.active) {
+      serviceWorker = registration.active;
+    }
+
+    if (serviceWorker) {
+      console.log(serviceWorker.state);
+      serviceWorker.addEventListener("statechange", function (e) {
+        console.log("State change: ", e.target.state);
+      });
+    }
+
+    if (navigator.serviceWorker.controller) {
+      console.log(
+        "controller.state ",
+        navigator.serviceWorker.controller.state
+      );
+      navigator.serviceWorker.controller.addEventListener(
+        "statechange",
+        function (e) {
+          console.log("Controller State change: ", e.target.state);
+        }
+      );
+    } else {
+      console.log("No controller right now");
+    }
+
     // When service worker state activates, start up the proxy client to connect to it
     // Experimental tho: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/oncontrollerchange
     navigator.serviceWorker.oncontrollerchange = function () {
       this.controller.onstatechange = function () {
+        console.log(
+          "controller state change: ",
+          navigator.serviceWorker.controller.state
+        );
+        // service worker changed to active
         if (this.state === "activated") {
-          resolve(startIPFSClient());
-        }
+          resolve();
+        } 
       };
     };
 
     // check to see if there's a service worker running, but missing an IPFS node
-    if (!ipfs && registration.active) {
+    if (registration.active && navigator.serviceWorker.controller) {
       // if no node, then load one up in this service worker
-      console.log(`Active but no ipfs`);
+      console.log(`Active, get ipfs`);
       try {
-        await exchangeMessages("startIPFSNode"); // await for it to finish before using it
-        resolve(startIPFSClient());
+        let res = await exchangeMessages("id"); // await for it to finish before using it
+        resolve(res);
       } catch (error) {
         reject(error);
       }
+      
     }
   });
 }
 
-function exchangeMessages(message) {
+export function exchangeMessages(message) {
   // https://googlechrome.github.io/samples/service-worker/post-message/
   // This wraps the message posting/response in a promise, which will resolve if the response doesn't
   // contain an error, and reject with the error if it does. If you'd prefer, it's possible to call
@@ -66,13 +102,3 @@ function exchangeMessages(message) {
     ]);
   });
 }
-
-const startIPFSClient = () => {
-  ipfs = createProxyClient({
-    addListener: navigator.serviceWorker.addEventListener.bind(
-      navigator.serviceWorker
-    ),
-    postMessage: (data) => navigator.serviceWorker.controller.postMessage(data),
-  });
-  return ipfs;
-};

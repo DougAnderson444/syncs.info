@@ -1,6 +1,6 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
 const node = require("./js/ipfsNode");
-const { createProxyServer } = require("ipfs-postmsg-proxy");
+import * as utils from "./js/ipfsUtils";
 
 let ipfsNode;
 
@@ -29,7 +29,7 @@ self.addEventListener("activate", (event) => {
       for (const key of keys) {
         if (key !== ASSETS) await caches.delete(key);
       }
-
+      console.log("Activiating, nodeGetter");
       await nodeGetter();
 
       self.clients.claim(); // claim control of the service worker business
@@ -40,7 +40,7 @@ self.addEventListener("activate", (event) => {
 async function nodeGetter() {
   // start the ipfs node
   try {
-    let ipfs = await node.getNode();
+    let ipfs = await node.get();
     ipfsNode = ipfs;
     const { agentVersion, id } = await ipfs.id();
     console.log(`The SW node id is `, id);
@@ -50,14 +50,30 @@ async function nodeGetter() {
 }
 
 self.addEventListener("message", async (event) => {
-  var senderID = event.source.id;
-  console.log(event.data);
-  if (event.data == "startIPFSNode") {
-    console.log(`Start node in dormant S.W.`);
-    await nodeGetter();
-    //reply when done
-    console.log('send msg back')
-    event.ports[0].postMessage({'test': 'This is my response.'});
+  switch (event.data) {
+    case "startIPFSNode":
+      console.log(`startIPFSNode message, nodeGetter`);
+      await nodeGetter();
+      event.ports[0].postMessage({ test: "This is my response." });
+      break;
+    case "id":
+      console.log(`get id`);
+      if (!ipfsNode) await nodeGetter();
+      let id = await ipfsNode.id();
+      event.ports[0].postMessage({ id: id });
+      break;
+    case "testData":
+      console.log(`test a write and flush`);
+      let cidStr
+      for await (const result of ipfsNode.add("Hello IPFS World, from Doug")) {
+        console.log(result)
+        cidStr = result.cid.toString()
+      }
+      console.log('cid: ', cidStr )
+      event.ports[0].postMessage(cidStr);
+      break;
+    default:
+      break;
   }
 });
 
@@ -112,16 +128,4 @@ self.addEventListener("fetch", (event) => {
       }
     })
   );
-});
-
-// Create proxy server that talks to the parent window
-const server = createProxyServer(() => ipfsNode, {
-  addListener: self.addEventListener && self.addEventListener.bind(self),
-  removeListener:
-    self.removeEventListener && self.removeEventListener.bind(self),
-  postMessage(data) {
-    self.clients.matchAll().then((clients) => {
-      clients.forEach((client) => client.postMessage(data));
-    });
-  },
 });

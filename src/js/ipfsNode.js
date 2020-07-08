@@ -1,10 +1,9 @@
-// IPFS
+// IPFS node for the service worker
 import IPFS from "ipfs";
 
 var node, nodeId;
 
-export const getNode = async () => {
-
+export const get = async () => {
   if (!node) {
     let repo = "ipfs"; //+ "-"+ username;
 
@@ -32,22 +31,22 @@ export const getNode = async () => {
 
     node = await IPFS.create(options);
 
-    const multiaddr =
-      "/dns4/super.peerpiper.io/tcp/4033/wss/ipfs/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5";
-    try {
-      await node.swarm.connect(multiaddr);
-      console.log(`Connected to ${multiaddr}`);
-    } catch (e) {
-      console.log(e);
-    }
-
     const { agentVersion, id } = await node.id();
-    nodeId = id
+    nodeId = id;
 
-    console.log(`New node ${id}`)
-  }else{
-    console.log(`Existing node ${nodeId}`)
-  } 
-  
+    console.log(`New node ${id}`);
+  } else {
+    console.log(`Existing node ${nodeId}`);
+  }
+
+  const multiaddr =
+    "/dns4/super.peerpiper.io/tcp/4033/wss/ipfs/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5";
+  try {
+    await node.swarm.connect(multiaddr);
+    console.log(`Connected to ${multiaddr}`);
+  } catch (e) {
+    console.log(e);
+  }
   return node;
 };
+
