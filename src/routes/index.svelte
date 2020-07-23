@@ -1,25 +1,15 @@
-<script context="module">
-  export async function preload(page, session) {
-    const { host, path, params, query } = page
-
-    const article = host
-
-    return { article }
-  }
-</script>
-
 <script>
   import ServiceWorker from '../components/serviceWorker'
-  import { fade, fly } from 'svelte/transition'
+  import CreateSubdomain from '../components/CreateSubdomain'
+
+  import { fade, fly, slide } from 'svelte/transition'
+  import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
   import { stores } from '@sapper/app'
   const { preloading, page, session } = stores()
   // const { host, path, params, query } = page
 
   export let nodeId = false
-
-  export let article
-  export let domain = $page.host
 </script>
 
 <style>
@@ -90,12 +80,12 @@
   <title>Syncs.info</title>
 </svelte:head>
 
-<h1>Loading...</h1>
 <div style="clear:all;" />
 <div class="container">
   <center>
     {#if !nodeId}
-      <div class="placeholder" out:fade={{ duration: 1500 }}>
+      <h1>Loading...</h1>
+      <div class="placeholder" out:fade={{ duration: 500 }}>
         <figure class="below">
           <img class="below" alt="Wait" src="wait-for-it.png" />
           <figcaption>Loading...</figcaption>
@@ -103,10 +93,11 @@
       </div>
     {:else}
       <h1>Great success!</h1>
+      <div style="clear:all;" />
       <div class="replacement" in:fade={{ duration: 1500 }}>
         <figure>
           <img alt="OK" src="ok.png" />
-          <figcaption>Have fun as a user syncs.info!</figcaption>
+          <figcaption>Save and sync your data!</figcaption>
         </figure>
       </div>
     {/if}
@@ -118,5 +109,3 @@
     <ServiceWorker bind:nodeId />
   </p>
 </div>
-<p>{article}</p>
-<p>{domain}</p>

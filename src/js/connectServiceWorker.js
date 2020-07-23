@@ -11,9 +11,11 @@ export async function init() {
   return new Promise(async (resolve, reject) => {
     // Always register the service worker to get started
     let registration = await navigator.serviceWorker.register(
-      "service-worker.js",
+      "/service-worker.js",
       { scope: "/" }
     );
+
+    registration.update(); //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/update
 
     var serviceWorker;
     if (registration.installing) {
@@ -25,9 +27,9 @@ export async function init() {
     }
 
     if (serviceWorker) {
-      console.log(serviceWorker.state);
+      //console.log(serviceWorker.state);
       serviceWorker.addEventListener("statechange", function (e) {
-        console.log("State change: ", e.target.state);
+        //console.log("State change: ", e.target.state);
       });
     }
 
@@ -64,9 +66,9 @@ export async function init() {
     // check to see if there's a service worker running, but missing an IPFS node
     if (registration.active && navigator.serviceWorker.controller) {
       // if no node, then load one up in this service worker
-      console.log(`Active, get ipfs`);
+      //console.log(`Active, get ipfs`);
       try {
-        let res = await exchangeMessages("id"); // await for it to finish before using it
+        let res = await exchangeMessages(JSON.stringify({ func: 'id', args: [] })); // await for it to finish before using it
         resolve(res);
       } catch (error) {
         reject(error);
@@ -88,7 +90,7 @@ export function exchangeMessages(message) {
       if (event.data.error) {
         reject(event.data.error);
       } else {
-        console.log("loaded response: ", event.data);
+        //console.log("loaded response: ", event.data);
         resolve(event.data);
       }
     };

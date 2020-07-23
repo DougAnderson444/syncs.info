@@ -29,7 +29,7 @@ self.addEventListener("activate", (event) => {
       for (const key of keys) {
         if (key !== ASSETS) await caches.delete(key);
       }
-      console.log("Activiating, nodeGetter");
+      //console.log("Activiating, nodeGetter");
       await nodeGetter();
 
       self.clients.claim(); // claim control of the service worker business
@@ -43,33 +43,34 @@ async function nodeGetter() {
     let ipfs = await node.get();
     ipfsNode = ipfs;
     const { agentVersion, id } = await ipfs.id();
-    console.log(`The SW node id is `, id);
+    //console.log(`The SW node id is `, id);
   } catch (error) {
-    console.log(err);
+    //console.log(error);
   }
 }
 
 self.addEventListener("message", async (event) => {
-  switch (event.data) {
-    case "startIPFSNode":
-      console.log(`startIPFSNode message, nodeGetter`);
-      await nodeGetter();
-      event.ports[0].postMessage({ test: "This is my response." });
-      break;
+  //console.log(event);
+  let data = JSON.parse(event.data);
+  //console.log(data);
+
+  switch (data.func) {
     case "id":
-      console.log(`get id`);
-      if (!ipfsNode) await nodeGetter();
-      let id = await ipfsNode.id();
-      event.ports[0].postMessage({ id: id });
+      //console.log(`get id`);
+      await nodeGetter();
+      const { id } = await ipfsNode.id();
+      //console.log(`send id: `, id)
+      event.ports[0].postMessage(id.toString());
       break;
-    case "testData":
-      console.log(`test a write and flush`);
-      let cidStr
-      for await (const result of ipfsNode.add("Hello IPFS World, from Doug")) {
-        console.log(result)
-        cidStr = result.cid.toString()
+    case "save":
+      //console.log(`save data `, data.args[0]);
+      let cidStr;
+      for await (const result of ipfsNode.add(data.args[0])) {
+        //console.log(result);
+        cidStr = result.cid.toString();
       }
-      console.log('cid: ', cidStr )
+      //console.log("cid: ", cidStr);
+      await fetch(`https://super.peerpiper.io:8088/ipfs/${cidStr}`)
       event.ports[0].postMessage(cidStr);
       break;
     default:

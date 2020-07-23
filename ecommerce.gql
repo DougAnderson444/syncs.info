@@ -1,0 +1,69 @@
+type Subdomain @collection(name: "subdomains") {
+  name: String!
+  ipns: String!
+  ipfs: String!
+}
+
+type Customer @collection(name: "customers") {
+  firstName: String!
+  lastName: String!
+  subdomain: Subdomain!
+}
+
+type Product @collection(name: "products") {
+  name: String!
+  description: String!
+  price: Float!
+  subdomain: Subdomain!
+  quantity: Int!
+  backorderLimit: Int!
+  backordered: Boolean!
+}
+
+type Order @collection(name: "orders") {
+  customer: Customer!
+  line: [ProductLine!]!
+  status: String!
+  creationDate: Time!
+  shipDate: Time
+  shipAddress: Address!
+  creditCard: CreditCard!
+}
+
+type Address @embedded {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+}
+
+type CreditCard @embedded {
+  network: String!
+  number: String!
+}
+
+type ProductLine @embedded {
+  product: Product!
+  quantity: Int!
+  price: Float!
+}
+
+input SubmitOrderProductInput {
+  productId: ID!
+  quantity: Int!
+}
+
+type Query {
+  allSubdomains: [Subdomain!]! @index(name: "all_subdomains")
+  allProducts: [Product!]! @index(name: "all_products")
+  allCustomers: [Customer!]! @index(name: "all_customers")
+  allOrders: [Order!]! @index(name: "all_orders")
+}
+
+type Mutation {
+  submitOrder(
+    customerId: ID!, 
+    products: [SubmitOrderProductInput]
+  ): Order! 
+  @resolver(name: "submit_order")
+}

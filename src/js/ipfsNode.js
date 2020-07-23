@@ -1,7 +1,7 @@
 // IPFS node for the service worker
 import IPFS from "ipfs";
 
-var node, nodeId;
+var node, nodeId
 
 export const get = async () => {
   if (!node) {
@@ -23,7 +23,7 @@ export const get = async () => {
             // "/dns4/ws-star1.par.dwebops.pub/tcp/443/wss/p2p-websocket-star",
             // "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
             // "/dns4/super.peerpiper.io/tcp/13577/wss/p2p-webrtc-star",
-            // "/dns4/super.peerpiper.io/tcp/4033/wss/p2p/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5"
+            // "/dns4/super.peerpiper.io/tcp/4033/wss/p2p/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5",
           ],
         },
       },
@@ -39,7 +39,7 @@ export const get = async () => {
     console.log(`Existing node ${nodeId}`);
   }
 
-  const multiaddr =
+  let multiaddr =
     "/dns4/super.peerpiper.io/tcp/4033/wss/ipfs/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5";
   try {
     await node.swarm.connect(multiaddr);
@@ -47,6 +47,6 @@ export const get = async () => {
   } catch (e) {
     console.log(e);
   }
+  
   return node;
 };
-
