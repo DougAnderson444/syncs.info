@@ -28,9 +28,9 @@ before_script:
   #- npm start & wait-on vercel dev # starts webserver at http://localhost:3000
 script:
   #- npm run build
-  - npx serve __sapper__/export & # hangs after this
+  - npx serve __sapper__/export --port 3000 & # hangs after this
   - npm run start:ci &
-  - $(npm bin)/cypress run --record --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338 # run cypress tests
+  - $(npm bin)/cypress run --record --port 3000 --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338 # run cypress tests
   - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
   - codecov
 
