@@ -27,14 +27,14 @@
   },
   "devDependencies": {
     "chai": "*",
+    "http-server": "^0.12.3",
     "mocha": "^8.0.1",
     "npm-run-all": "^4.1.5",
     "sapper": "^0.27.0",
+    "start-server-and-test": "1.9.0",
     "svelte": "^3.0.0",
     "svelte-loader": "^2.9.0",
-    "webpack": "^4.7.0",
-    "http-server": "0.11.1",
-    "start-server-and-test": "1.9.0"
+    "webpack": "^4.7.0"
   },
   "repository": "https://github.com/DougAnderson444/syncs.info",
   "license": "GPL-3.0-or-later"
