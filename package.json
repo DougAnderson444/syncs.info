@@ -5,7 +5,7 @@
   "scripts": {
     "vercel dev": "vercel dev",
     "dev": "sapper dev --port 3000",
-    "build": "sapper build",
+    "build": "sapper export",
     "export": "sapper export SAPPER_TIMESTAMP=$(date +%s%3N)",
     "start": "node __sapper__/export",
     "cy:open": "cypress open",
