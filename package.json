@@ -1,5 +1,5 @@
 {
-  "name": "SyncsInfo",
+  "name": "syncs-info",
   "description": "Sync your info amongst peers",
   "version": "0.0.1",
   "scripts": {
@@ -10,7 +10,7 @@
     "start": "node __sapper__/build",
     "cy:open": "cypress open",
     "start-server": "npm start",
-    "start:ci": "start-server-and-test start-server http://localhost:5002 test",
+    "start:ci": "start-server-and-test 5002 http://localhost:5002 test",
     "test": "run-p --race dev cy:run",
     "cy:run": "npx cypress run --record --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338"
   },
