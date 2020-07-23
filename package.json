@@ -10,6 +10,8 @@
     "start": "node __sapper__/build",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
+    "start-server": "npm start",
+    "ci": "start-server-and-test start-server http://localhost:3000 test",
     "test": "run-p --race dev cy:run"
   },
   "dependencies": {
