@@ -24,6 +24,7 @@ install:
   - npm install -g wait-on # global version
   - npm install -g codecov
 before_script:
+  - npm build
   - npm start & wait-on vercel dev # starts webserver at http://localhost:3000
 script:
   - npm run start:ci &
