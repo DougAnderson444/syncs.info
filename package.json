@@ -5,12 +5,11 @@
   "scripts": {
     "vercel dev": "vercel dev",
     "dev": "sapper dev --port 3000",
-    "build": "sapper export",
+    "build": "sapper build",
     "export": "sapper export SAPPER_TIMESTAMP=$(date +%s%3N)",
-    "start": "node __sapper__/build",
+    "start": "node __sapper__/export",
     "cy:open": "cypress open",
-    "start-server": "npm start",
-    "start:ci": "start-server-and-test http://localhost:3000 test",
+    "start:ci": "start-server-and-test start http://localhost:3000 test",
     "test": "run-p --race dev cy:run",
     "cy:run": "npx cypress run --record --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338"
   },
