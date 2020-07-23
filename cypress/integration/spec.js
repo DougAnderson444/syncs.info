@@ -45,3 +45,4 @@ describe("Make subdomain", () => {
 		expect("span#error-message").not.to.include('Invalid name. Try again!')
 	  });
   });
+  
