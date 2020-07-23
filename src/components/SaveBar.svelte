@@ -6,27 +6,28 @@
   import { stores } from '@sapper/app'
 
   const { page } = stores()
-  export let host = new URL($page.host)
 
   var regex = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
 
   // If not saved, show this bar. Then fade it out.
   export let status = 'hidden' // 'save-bar-container' // turns to Hidden
+  export let host
 
   onMount(() => {
+    host = new URL($page.host)
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
     console.log(`host: ${host} and hostname: ${host.hostname}`)
-    let subdomain = host.toString().replace(`${process.env.SAPPER_APP_TLD}`, '') //chop off the tld
+    let subdomain = host.toString().replace(`${host.hostname}`, '') //chop off the tld
 
     if (!subdomain) status = 'hidden'
     else {
       console.log(`subdomain: ${subdomain}`)
       subdomain = subdomain.replace(`.`, '') //lose the dot
       ;(async () => {
-        let s = host.hostname || subdomain + '.syncs.info'
-        console.log(`Getting <${s}> from cloudflare`)
+        let str = host.hostname ? subdomain + "." + host.hostname : subdomain + '.syncs.info';
+        console.log(`Getting <${str}> from cloudflare`)
         let link = await getDNSLinkFromName(s)
         console.log('DNSLink is ' + link)
         if (link) status = 'hidden'
