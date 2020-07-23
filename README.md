@@ -1,4 +1,7 @@
 <p align="center">
+
+[![Build Status](https://travis-ci.com/DougAnderson444/syncs.info.svg?branch=master)](https://travis-ci.com/DougAnderson444/syncs.info)
+
    <a href="https://dashboard.cypress.io/projects/7s5okt/runs">
     <img src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/7s5okt/develop&style=flat&logo=cypress" />
   </a>

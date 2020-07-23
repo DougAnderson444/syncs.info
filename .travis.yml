@@ -9,18 +9,30 @@ packages:
 cache:
   # Caches $HOME/.npm when npm ci is default script command
   # Caches node_modules in all other cases
+  - ~/.npm
+  - ~/.cache
 npm: true
 directories:
   # we also need to cache folder with Cypress binary
   - ~/.cache
+before_install:
+  - # start your web application and listen on `localhost`
+  - # google-chrome-stable --headless --disable-gpu --remote-debugging-port=3000 http://localhost &
 install:
   - npm ci
+  - npm i -g vercel
   - npm install -g codecov
+before_script:
+  - npm start & wait-on vercel dev # starts webserver at http://localhost:3000
 script:
-  - $(npm bin)/cypress run --record
+  - npm run start:ci &
+  - $(npm bin)/cypress run --record --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338 # run cypress tests
   - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
   - codecov
 
+notifications:
+  webhooks:
+    urls:
+      - https://hooks.slack.com/services/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
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-  
