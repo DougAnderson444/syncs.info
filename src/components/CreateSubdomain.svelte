@@ -97,6 +97,7 @@
 <form class="form" on:submit|preventDefault={checkIfPageExists}>
   <span>
     <input
+    id="create-domain"
       class={searchState}
       required
       color="#9b51e0"
@@ -110,8 +111,8 @@
 </form>
 {#if errorMessage}
   <br />
-  <div class="error-message">
-    <span>{errorMessage}</span>
+  <div class="error-message" >
+    <span id="error-message">{errorMessage}</span>
   </div>
 {/if}
 {#if pageExists}
