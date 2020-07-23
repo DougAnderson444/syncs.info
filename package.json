@@ -7,11 +7,11 @@
     "dev": "sapper dev --port 3000",
     "build": "sapper export",
     "export": "sapper export SAPPER_TIMESTAMP=$(date +%s%3N)",
-    "start": "node __sapper__/build",
+    "start": "npx serve __sapper__/build",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "start-server": "npm start",
-    "ci": "start-server-and-test start-server http://localhost:3000 test",
+    "start:ci": "start-server-and-test start-server http://localhost:5000 test",
     "test": "run-p --race dev cy:run"
   },
   "dependencies": {
@@ -32,7 +32,9 @@
     "sapper": "^0.27.0",
     "svelte": "^3.0.0",
     "svelte-loader": "^2.9.0",
-    "webpack": "^4.7.0"
+    "webpack": "^4.7.0",
+    "http-server": "0.11.1",
+    "start-server-and-test": "1.9.0"
   },
   "repository": "https://github.com/DougAnderson444/syncs.info",
   "license": "GPL-3.0-or-later"
