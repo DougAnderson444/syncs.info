@@ -9,7 +9,7 @@
     "export": "sapper export",
     "start": "vercel dev",
     "cy:open": "cypress open",
-    "start:ci": "start-server-and-test start http://localhost:5000 test",
+    "start:ci": "start-server-and-test start http://localhost:3000 test",
     "test": "run-p --race dev cy:run",
     "cy:run": "npx cypress run --record --key d5d0c4ea-23ad-420f-8f77-7c8447a1d338"
   },

@@ -14,21 +14,24 @@
   export let host
 
   onMount(() => {
-    host = new URL($page.host)
+    console.log(`host: ${$page.host}`)
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
-    console.log(`host: ${host} and hostname: ${host.hostname}`)
-    let subdomain = host.toString().replace(`${host.hostname}`, '') //chop off the tld
+    let subdomain = $page.host.includes('.localhost')
+      ? $page.host.split(/_(.+)/)[0]
+      : $page.host.match(regex) && $page.host.match(regex)[1] //chop off the tld
 
     if (!subdomain) status = 'hidden'
     else {
       console.log(`subdomain: ${subdomain}`)
       subdomain = subdomain.replace(`.`, '') //lose the dot
       ;(async () => {
-        let str = host.hostname ? subdomain + "." + host.hostname : subdomain + '.syncs.info';
+        let str = host.hostname
+          ? subdomain + '.' + host.hostname
+          : subdomain + '.syncs.info'
         console.log(`Getting <${str}> from cloudflare`)
-        let link = await getDNSLinkFromName(s)
+        let link = await getDNSLinkFromName(str)
         console.log('DNSLink is ' + link)
         if (link) status = 'hidden'
         else status = 'save-bar-container'
