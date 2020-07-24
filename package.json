@@ -7,7 +7,7 @@
     "dev": "sapper dev --port 3000",
     "build": "sapper export",
     "export": "sapper export",
-    "start": "vercel dev",
+    "start": "vercel -c -d -f NOW_ORG_ID=$NOW_ORG_ID NOW_PROJECT_ID=$NOW_PROJECT_ID -t $NOW_TOKEN && vercel dev",
     "cy:open": "cypress open",
     "start:ci": "start-server-and-test start http://localhost:3000 test",
     "test": "run-p --race dev cy:run",
