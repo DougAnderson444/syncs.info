@@ -11,7 +11,6 @@
 
   // If not saved, show this bar. Then fade it out.
   export let status = 'hidden' // 'save-bar-container' // turns to Hidden
-  export let host
 
   onMount(() => {
     console.log(`host: ${$page.host}`)
@@ -19,7 +18,7 @@
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
     let subdomain = $page.host.includes('.localhost')
-      ? $page.host.split(/_(.+)/)[0]
+      ? $page.host.split(/\.(.+)/)[0]
       : $page.host.match(regex) && $page.host.match(regex)[1] //chop off the tld
 
     if (!subdomain) status = 'hidden'
@@ -27,9 +26,9 @@
       console.log(`subdomain: ${subdomain}`)
       subdomain = subdomain.replace(`.`, '') //lose the dot
       ;(async () => {
-        let str = host.hostname
-          ? subdomain + '.' + host.hostname
-          : subdomain + '.syncs.info'
+        let str = $page.host.includes('.localhost')
+          ? subdomain + '.syncs.info'
+          : $page.host
         console.log(`Getting <${str}> from cloudflare`)
         let link = await getDNSLinkFromName(str)
         console.log('DNSLink is ' + link)
