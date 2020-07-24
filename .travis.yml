@@ -33,9 +33,5 @@ script:
   #- istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
   #- codecov
 
-notifications:
-  webhooks:
-    urls:
-      - https://hooks.slack.com/services/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
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
