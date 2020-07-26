@@ -10,6 +10,7 @@
   // const { host, path, params, query } = page
 
   export let nodeId = false
+
 </script>
 
 <style>

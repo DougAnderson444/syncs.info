@@ -43,7 +43,8 @@ async function nodeGetter() {
     let ipfs = await node.get();
     ipfsNode = ipfs;
     const { agentVersion, id } = await ipfs.id();
-    //console.log(`The SW node id is `, id);
+    const peerInfos = await ipfs.swarm.peers()
+    console.log(`The peers are `, peerInfos);
   } catch (error) {
     //console.log(error);
   }

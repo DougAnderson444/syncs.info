@@ -13,7 +13,11 @@
   export let status = 'hidden' // 'save-bar-container' // turns to Hidden
 
   onMount(() => {
-    console.log(`host: ${$page.host}`)
+    var parts = window.location.hostname.split('.')
+    var subdomain1 = parts.shift()
+    var upperleveldomain = parts.join('.')
+
+    //console.log(`host: ${$page.host}`)
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
@@ -29,14 +33,22 @@
         let str = $page.host.includes('.localhost')
           ? subdomain + '.syncs.info'
           : $page.host
-        console.log(`Getting <${str}> from cloudflare`)
+        console.log(`Getting <${str}> from HTTPS-over-DNS`)
         let link = await getDNSLinkFromName(str)
-        console.log('DNSLink is ' + link)
         if (link) status = 'hidden'
         else status = 'save-bar-container'
       })()
     }
   })
+
+  const savePage = async () => {
+    // prompt for a password
+    // create identity
+    // publish to IPNS
+    // show IPNS link
+    // and show backup phrases/link device?
+    // show some basic sync component, widget, sssssss?
+  }
 </script>
 
 <style>
@@ -79,7 +91,7 @@
   <p class="last-saved">Temporary page. Wanna go steady? Secure this page:</p>
   <div class="edit-link-and-save">
     <div>
-      <SaveButton />
+      <SaveButton on:click={savePage} />
     </div>
   </div>
 </div>

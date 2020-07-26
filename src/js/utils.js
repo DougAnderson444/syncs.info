@@ -14,7 +14,7 @@ export const getDNSLinkFromName = async (value) => {
   //if (ipfsNode) results = await resolve(ipfsNode, value) else results = 'Wait a moment, IPFS needs to finish loading'
   let url = `https://cloudflare-dns.com/dns-query?name=${value}&type=TXT`;
   let res = await fetchJSONData(url);
-  console.log(res);
+  //console.log(res);
   if (!res.Answer[0]) return null;
 
   let results = res.Answer[0].data;

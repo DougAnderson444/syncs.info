@@ -1,7 +1,7 @@
 // IPFS node for the service worker
 import IPFS from "ipfs";
 
-var node, nodeId
+var node, nodeId;
 
 export const get = async () => {
   if (!node) {
@@ -19,12 +19,20 @@ export const get = async () => {
         //enabled: true,
         //},
         Addresses: {
-          Swarm: [
-            // "/dns4/ws-star1.par.dwebops.pub/tcp/443/wss/p2p-websocket-star",
-            // "/dns4/ws-star.discovery.libp2p.io/tcp/443/wss/p2p-websocket-star",
-            // "/dns4/super.peerpiper.io/tcp/13577/wss/p2p-webrtc-star",
-            // "/dns4/super.peerpiper.io/tcp/4033/wss/p2p/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5",
+          Delegates: [
+            "/dns4/node0.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node1.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node2.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node3.delegate.ipfs.io/tcp/443/https",
           ],
+        },
+      },
+      libp2p: {
+        config: {
+          dht: {
+            enabled: true,
+            clientMode: true,
+          },
         },
       },
     };
@@ -34,9 +42,9 @@ export const get = async () => {
     const { agentVersion, id } = await node.id();
     nodeId = id;
 
-    console.log(`New node ${id}`);
+    //console.log(`New node ${id}`);
   } else {
-    console.log(`Existing node ${nodeId}`);
+    //console.log(`Existing node ${nodeId}`);
   }
 
   let multiaddr =
@@ -47,6 +55,6 @@ export const get = async () => {
   } catch (e) {
     console.log(e);
   }
-  
+
   return node;
 };
