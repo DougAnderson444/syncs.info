@@ -1,7 +1,11 @@
 <script>
+  import { createEventDispatcher } from 'svelte'
+  const dispatch = createEventDispatcher()
+
   export let saveState
   export let disabled
   $: disabled = !!saveState
+
 </script>
 
 <style>
@@ -18,7 +22,7 @@
     font-weight: bold;
   }
   .SAVING {
-    background-color: #dce92c;
+    background-color: rgb(173, 173, 173);
   }
   .SUCCESS {
     background-color: purple;
@@ -28,7 +32,7 @@
   }
 </style>
 
-<button {disabled} class={saveState}>
+<button {disabled} class={saveState} on:click={() => dispatch('click')}>
   {#if saveState == 'SAVING'}
     ⏳
   {:else if saveState == 'ERROR'}

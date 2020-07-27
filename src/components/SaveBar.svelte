@@ -1,16 +1,21 @@
 <script>
   import SaveButton from './SaveButton.svelte'
   import { getDNSLinkFromName } from '../js/utils.js'
-
   import { onMount } from 'svelte'
-  import { stores } from '@sapper/app'
 
+  //svelte stores
+  import { appSection, username } from '../js/stores.js'
+
+  //sapper stores
+  import { stores } from '@sapper/app'
   const { page } = stores()
 
   var regex = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
 
   // If not saved, show this bar. Then fade it out.
   export let status = 'hidden' // 'save-bar-container' // turns to Hidden
+  export let saveState = ''
+  let subdomain
 
   onMount(() => {
     var parts = window.location.hostname.split('.')
@@ -21,7 +26,7 @@
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
-    let subdomain = $page.host.includes('.localhost')
+    subdomain = $page.host.includes('.localhost')
       ? $page.host.split(/\.(.+)/)[0]
       : $page.host.match(regex) && $page.host.match(regex)[1] //chop off the tld
 
@@ -41,7 +46,16 @@
     }
   })
 
-  const savePage = async () => {
+  const savePage = async (e) => {
+    // disable the save button, make bar grey
+    saveState = 'SAVING'
+    console.log(`subdomain`)
+    console.log(subdomain)
+    $username = subdomain
+    // show the password page
+    console.log(`CreateNewUser`)
+    $appSection = 'CreateNewUser'
+
     // prompt for a password
     // create identity
     // publish to IPNS
@@ -91,7 +105,7 @@
   <p class="last-saved">Temporary page. Wanna go steady? Secure this page:</p>
   <div class="edit-link-and-save">
     <div>
-      <SaveButton on:click={savePage} />
+      <SaveButton on:click={savePage} {saveState} />
     </div>
   </div>
 </div>
