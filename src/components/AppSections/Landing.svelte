@@ -1,5 +1,5 @@
 <script>
-  import ServiceWorker from '../ServiceWorker.svelte'
+  import ServiceWorker from '../ServiceWorker'
   import { fade, fly, slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
