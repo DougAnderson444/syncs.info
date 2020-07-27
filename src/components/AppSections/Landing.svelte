@@ -1,5 +1,5 @@
 <script>
-  import ServiceWorker from '../ServiceWorker'
+  import ServiceWorkerComp from './SubComp/ServWorkerComp.svelte'
   import { fade, fly, slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
@@ -96,6 +96,6 @@
 <div style="clear:all;" />
 <div>
   <p>
-    <ServiceWorker bind:nodeId />
+    <ServiceWorkerComp bind:nodeId />
   </p>
 </div>

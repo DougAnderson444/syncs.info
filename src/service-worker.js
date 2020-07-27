@@ -1,6 +1,5 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
 import { parseUserMsg } from "./js/bridgeFunctions.js";
-//import { parseUserMsg } from "./js/swUtils.js";
 const node = require("./js/ipfsNode");
 import * as utils from "./js/ipfsUtils";
 
