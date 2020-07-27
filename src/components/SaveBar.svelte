@@ -49,11 +49,8 @@
   const savePage = async (e) => {
     // disable the save button, make bar grey
     saveState = 'SAVING'
-    console.log(`subdomain`)
-    console.log(subdomain)
     $username = subdomain
     // show the password page
-    console.log(`CreateNewUser`)
     $appSection = 'CreateNewUser'
 
     // prompt for a password

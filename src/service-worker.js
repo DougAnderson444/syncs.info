@@ -1,4 +1,6 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
+import { parseUserMsg } from "./js/bridgeFunctions.js";
+//import { parseUserMsg } from "./js/swUtils.js";
 const node = require("./js/ipfsNode");
 import * as utils from "./js/ipfsUtils";
 
@@ -43,7 +45,7 @@ async function nodeGetter() {
     let ipfs = await node.get();
     ipfsNode = ipfs;
     const { agentVersion, id } = await ipfs.id();
-    const peerInfos = await ipfs.swarm.peers()
+    const peerInfos = await ipfs.swarm.peers();
     console.log(`The peers are `, peerInfos);
   } catch (error) {
     //console.log(error);
@@ -71,9 +73,22 @@ self.addEventListener("message", async (event) => {
         cidStr = result.cid.toString();
       }
       //console.log("cid: ", cidStr);
-      await fetch(`https://super.peerpiper.io:8088/ipfs/${cidStr}`)
+      await fetch(`https://super.peerpiper.io:8088/ipfs/${cidStr}`);
       event.ports[0].postMessage(cidStr);
       break;
+
+    case "createUser":
+      const { username, password, deviceName, deviceType } = parseUserMsg(data.args);
+      console.log(
+        `In service worker:\n `,
+        username,
+        password,
+        deviceName,
+        deviceType
+      );
+      event.ports[0].postMessage('User Created');
+      break;
+
     default:
       break;
   }
