@@ -113,6 +113,7 @@
         input$aria-controls="super-helper"
         input$aria-describedby="super-helper"
         on:keydown={handlePasswordInput}
+        on:keyup={handlePasswordInput}
         on:keydown={handleInputKeyPress}
         input$autocomplete="new-password" />
       <HelperText id="super-helper">
@@ -132,7 +133,12 @@
       input$aria-controls="super-helper-2"
       input$aria-describedby="super-helper-2"
       on:keypress={handleInputKeyPress}
-      on:keyup={checkMatch} />
+      on:keyup={checkMatch} 
+      on:keydown={checkMatch} 
+      on:blur={checkMatch} 
+      on:focus={checkMatch} 
+      
+      />
     <HelperText id="super-helper-2">Press Enter when you're ready!</HelperText>
 
     <Warning show={!match}>

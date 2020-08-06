@@ -3,10 +3,12 @@ import IPFS from "ipfs";
 
 var node, nodeId;
 
-export const get = async () => {
+export const get = async (username) => {
   if (!node) {
-    let repo = "ipfs"; //+ "-"+ username;
-
+    let repo = "ipfs-"+ username;
+    
+    console.log(repo)
+    
     // pass must be at least 20 char long
     const pass = "01234567890123456789";
 

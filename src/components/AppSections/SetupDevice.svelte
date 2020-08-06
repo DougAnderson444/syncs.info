@@ -27,6 +27,7 @@
     username,
     password,
   } from '../../js/stores.js'
+  import { onMount } from 'svelte'
 
   import { DEVICE_TYPES } from 'streamlined-idm-wallet-sdk/src/identities/identity/utils/constants/devices'
 
@@ -37,11 +38,19 @@
   export let loading
   let error, ok
 
-  const handleButtonClick = async() => {
-    console.log('Clicked')
+
+  const handleButtonClick = async () => {
+
     // send the data to the service worker to create the account in the background
-    await createUser($username, $password, $deviceName, $deviceType)
-    //$appSection = 'ProcessCreateUser'
+    await createUser(
+      $username,
+      $password,
+      $deviceName,
+      $deviceType,
+      process.env.SAPPER_APP_API_URL,
+      process.env.SAPPER_APP_WS_URL,
+    )
+    //$appSection = 'Landing'
   }
 </script>
 
@@ -49,12 +58,16 @@
   * :global(.list) {
     max-width: 600px;
     border: 1px solid rgba(0, 0, 0, 0.15);
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
   }
   .narrow {
     width: 250px;
+  }
+  .vert {
+    margin: 1em 0 1em 0;
+    padding: 1em 0 1em 0;
   }
 </style>
 
@@ -64,24 +77,24 @@
 
   <h3>Select what type of device this is (it's smart to add a few devices)</h3>
 
-  <div class="narrow">
+  <div class="narrow vert">
     <List class="list" radiolist>
       {#each DEVICE_TYPES as device}
         <Item>
           <Graphic>
             <Radio bind:group={selectedDeviceType} value={device} />
           </Graphic>
+          <Graphic class="material-icons">
+            {device != 'desktop' ? device : 'computer'}
+          </Graphic>
           <Label>{device}</Label>
         </Item>
       {/each}
     </List>
-    <div>
-      <pre class="status">Selected: {selectedDeviceType}</pre>
-    </div>
   </div>
 
   <h3>Name this device (it's smart to add a few devices)</h3>
-  <div>
+  <div class="vert">
     <Textfield
       bind:value={$deviceName}
       on:focus|once={() => {

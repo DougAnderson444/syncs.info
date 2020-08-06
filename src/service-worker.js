@@ -1,7 +1,7 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
-import { parseUserMsg } from "./js/bridgeFunctions.js";
+import { parseCreateUserMsg } from "./js/bridgeFunctions.js";
 const node = require("./js/ipfsNode");
-import * as utils from "./js/ipfsUtils";
+import * as pro from "./js/process";
 
 let ipfsNode;
 
@@ -18,7 +18,7 @@ self.addEventListener("install", (event) => {
       .open(ASSETS)
       .then((cache) => cache.addAll(to_cache))
       .then(() => {
-        self.skipWaiting();
+        //self.skipWaiting();
       })
   );
 });
@@ -31,37 +31,36 @@ self.addEventListener("activate", (event) => {
         if (key !== ASSETS) await caches.delete(key);
       }
       //console.log("Activiating, nodeGetter");
-      await nodeGetter();
+      //await nodeGetter();
 
       self.clients.claim(); // claim control of the service worker business
     })
   );
 });
 
-async function nodeGetter() {
+async function nodeGetter(username) {
+  console.log(`in nodeGetter`, username)
   // start the ipfs node
   try {
-    let ipfs = await node.get();
+    let ipfs = await node.get(username);
     ipfsNode = ipfs;
     const { agentVersion, id } = await ipfs.id();
     const peerInfos = await ipfs.swarm.peers();
     console.log(`The peers are `, peerInfos);
   } catch (error) {
-    //console.log(error);
+    console.log(error);
   }
 }
 
 self.addEventListener("message", async (event) => {
   //console.log(event);
   let data = JSON.parse(event.data);
-  //console.log(data);
+  console.log(data);
 
   switch (data.func) {
     case "id":
-      //console.log(`get id`);
-      await nodeGetter();
+      await nodeGetter(data.args[0]);
       const { id } = await ipfsNode.id();
-      //console.log(`send id: `, id)
       event.ports[0].postMessage(id.toString());
       break;
     case "save":
@@ -77,14 +76,8 @@ self.addEventListener("message", async (event) => {
       break;
 
     case "createUser":
-      const { username, password, deviceName, deviceType } = parseUserMsg(data.args);
-      console.log(
-        `In service worker:\n `,
-        username,
-        password,
-        deviceName,
-        deviceType
-      );
+      const { username, password, deviceName, deviceType, apiUrl, wsUrl } = parseCreateUserMsg(data.args);
+      await pro.createNewUser(username, password, deviceName, deviceType, ipfsNode, apiUrl, wsUrl)
       event.ports[0].postMessage('User Created');
       break;
 

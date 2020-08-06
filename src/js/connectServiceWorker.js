@@ -4,9 +4,8 @@
  *
  */
 
-let ipfs;
 
-export async function init() {
+export async function init(username) {
   // return a promise for an IPFS proxy instance
   return new Promise(async (resolve, reject) => {
     // Always register the service worker to get started
@@ -68,7 +67,7 @@ export async function init() {
       // if no node, then load one up in this service worker
       //console.log(`Active, get ipfs`);
       try {
-        let res = await exchangeMessages(JSON.stringify({ func: 'id', args: [] })); // await for it to finish before using it
+        let res = await exchangeMessages(JSON.stringify({ func: 'id', args: [username] })); // await for it to finish before using it
         resolve(res);
       } catch (error) {
         reject(error);

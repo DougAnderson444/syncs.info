@@ -9,7 +9,7 @@
   let tld //= domain.match(regex)
   tld = process.env.SAPPER_APP_TLD //domain.includes('localhost') ? 'localhost' :
 
-  let subdomainOk = /^(?!.{64})(?:[a-z0-9](?:[a-z0-9-\.]{0,61}[a-z0-9])?)+/
+  let subdomainOk = /^(?!.{64})(?:[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?)+/
 
   let pageToSearch, searchState, errorMessage, pageExists
 
@@ -17,7 +17,7 @@
     if (pageToSearch && pageToSearch.match(subdomainOk) == pageToSearch) {
       searchState = 'SEARCHING'
       try {
-        let res = await fetch(`/api/get-page?page=${pageToSearch}`)
+        let res = await fetch(`/api/get-page?page=${encodeURI(pageToSearch)}`)
         if (res.status === 200) {
           searchState = 'ERROR'
           pageExists = { name: `${pageToSearch}.${tld}` }
@@ -38,6 +38,7 @@
     } else {
       // not ok
       errorMessage = 'Invalid name. Try again!'
+      console.log(errorMessage)
     }
   }
 
@@ -52,10 +53,10 @@
 
 <style>
   input {
-    border-color: #2ecc40;
+    border-color: #ccc;
     width: 120px;
     max-width: 40vw;
-    padding: 0.25em;
+    padding: 0.35em;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;

@@ -78,7 +78,7 @@
       <div class="placeholder" out:fade={{ duration: 500 }}>
         <figure class="below">
           <img class="below" alt="Wait" src="wait-for-it.png" />
-          <figcaption>Loading...</figcaption>
+          <figcaption>Loading the blockchain in your browser</figcaption>
         </figure>
       </div>
     {:else}

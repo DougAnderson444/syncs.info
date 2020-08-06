@@ -7,11 +7,27 @@
   export let value = ''
 
   onMount(async () => {
-    if ('serviceWorker' in navigator) {
-      await sw.init()
-      nodeId = await sw.exchangeMessages(
-        JSON.stringify({ func: 'id', args: [] }),
-      )
+    let isDev = window.location.hostname.includes('localhost')
+    let splitHost = window.location.hostname.split('.')
+    let username
+
+    if (
+      (!isDev && splitHost.length === 3) ||
+      (isDev && splitHost.length === 2)
+    ) {
+      username = splitHost[0]
+    }
+
+    if ('serviceWorker' in navigator && username) {
+      console.log(`init `, username)
+      nodeId = await sw.init(username)
+      console.log(`nodeid is ${nodeId}`)
+      if (!nodeId) {
+        nodeId = await sw.exchangeMessages(
+          JSON.stringify({ func: 'id', args: [username] }),
+        )
+        console.log(`nodeid is ${nodeId}`)
+      }
     } else {
       console.log('No service-worker on this browser')
     }
@@ -30,10 +46,8 @@
 
 {#if nodeId}
   {#await nodeId then nodeId}
-<!--    NodeId: {nodeId} <br /> -->
-    <p>
-      Save some text to IPFS:
-    </p>
+    <!--    NodeId: {nodeId} <br /> -->
+    <p>Save some text to IPFS:</p>
     <form on:submit|preventDefault={handleSubmit}>
       <input placeholder="Hello Doug from IPFS" bind:value />
     </form>

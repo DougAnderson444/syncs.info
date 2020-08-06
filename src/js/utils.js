@@ -27,3 +27,13 @@ export const getDNSLinkFromName = async (value) => {
 
   return ipnsHash;
 };
+
+export const catchAndLog = (fn, log) => {
+  return async (...args) => {
+    try {
+      await fn(...args)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+}
