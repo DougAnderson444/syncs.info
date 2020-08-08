@@ -53,7 +53,8 @@ export const createNewUser = async (
   deviceType,
   ipfsNode,
   apiMultiAddr,
-  wsMultiAddr
+  wsMultiAddr,
+  event
 ) => {
   // STEPS
   // 1. use username & password to create RSA-pem & backup mnemonic

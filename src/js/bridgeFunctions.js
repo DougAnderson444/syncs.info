@@ -15,6 +15,7 @@ export const createUser = async (
         args: [username, password, deviceName, deviceType, apiUrl, wsUrl],
       })
     );
+    return res
   } catch (error) {
     console.log(error);
   }

@@ -35,14 +35,11 @@
   $deviceType = DEVICE_TYPES[0]
   let selectedDeviceType = $deviceType
 
-  export let loading
-  let error, ok
-
+  export let complete
 
   const handleButtonClick = async () => {
-
     // send the data to the service worker to create the account in the background
-    await createUser(
+    complete = await createUser(
       $username,
       $password,
       $deviceName,
@@ -71,8 +68,12 @@
   }
 </style>
 
-{#if loading}
-  <div>...Loading...</div>
+{#if complete}
+  {#await complete}
+    Saving... takes a minute
+  {:then complete}
+    Create user: {complete}
+  {/await}
 {:else}
 
   <h3>Select what type of device this is (it's smart to add a few devices)</h3>
