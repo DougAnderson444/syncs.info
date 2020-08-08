@@ -53,7 +53,6 @@ async function nodeGetter(username) {
 }
 
 self.addEventListener("message", async (event) => {
-  //console.log(event);
   let data = JSON.parse(event.data);
   console.log(data);
 
