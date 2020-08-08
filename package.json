@@ -1,7 +1,7 @@
 {
   "name": "syncs-info",
   "description": "Sync your info amongst peers",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "scripts": {
     "vercel dev": "vercel dev",
     "dev": "sapper dev --port 3000",
