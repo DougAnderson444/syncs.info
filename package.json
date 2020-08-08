@@ -1,7 +1,7 @@
 {
   "name": "syncs-info",
   "description": "Sync your info amongst peers",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "vercel dev": "vercel dev",
     "dev": "sapper dev --port 3000",
@@ -16,7 +16,6 @@
   "dependencies": {
     "base64url": "^3.0.1",
     "compression": "^1.7.1",
-    "cypress": "^4.11.0",
     "faunadb": "^2.14.2",
     "human-crypto-keys": "^0.1.4",
     "ipfs": "^0.48.1",
@@ -46,6 +45,7 @@
     "chai": "^4.2.0",
     "css-loader": "^4.0.0",
     "cssnano": "^4.1.10",
+    "cypress": "^4.12.1",
     "http-server": "^0.12.3",
     "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^8.0.1",

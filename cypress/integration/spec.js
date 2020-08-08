@@ -23,7 +23,23 @@ describe("Navigation", () => {
 	cy.url().should("include", "/blog");
   });
 });
+  
+describe("Save bar", () => {
+	
+	it("has the save bar widget", () => {
+	  cy.get("p#save-bar").contains("Temporary page.");
+	});
 
+	// click on the button
+	// prompt for a password
+	// create identity 
+	// publish to IPNS
+	// show IPNS link
+	// and show backup phrases/link device?
+	// show some basic sync component, widget, sssssss?
+
+
+  });
 describe("Make subdomain", () => {
 	beforeEach(() => {
 	  cy.visit("http://localhost:3000");
@@ -44,29 +60,5 @@ describe("Make subdomain", () => {
 		cy.get("input#create-domain").type("doug");
 		expect("span#error-message").not.to.include('Invalid name. Try again!')
 	  });
-
-	  it("creates a new subdomain", () => {
-		cy.get("input#create-domain").type("douglas{enter}");
-		cy.location().should((loc) => {
-			expect(loc.origin).to.eq('http://douglas.localhost:3000')
-		  })
-	  });
-
-  });
-  
-describe("Save bar", () => {
-	
-	it("has the save bar widget", () => {
-	  cy.contains("span", "Temporary page.");
-	});
-
-	// click on the button
-	// prompt for a password
-	// create identity 
-	// publish to IPNS
-	// show IPNS link
-	// and show backup phrases/link device?
-	// show some basic sync component, widget, sssssss?
-
 
   });

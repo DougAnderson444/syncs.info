@@ -1,5 +1,4 @@
 import faunadb from "faunadb";
-import Pusher from "pusher";
 
 import { client } from "../src/js/db";
 
@@ -8,69 +7,60 @@ const { Get, Match, Index, Update, Create, Collection } = faunadb.query;
 export default async (req, res) => {
   let {
     cookies: { token },
-    body: { email, html },
+    body: { username, ipns },
     headers: { host },
   } = req;
 
   const sessionId = token;
 
-  // parse page information from host
+  console.log(`save <${username}> in db`);
 
-  let isDev = host.includes("localhost");
-  let splitHost = host.split(".");
+  try {
+    const { ref } = await client.query(
+      Get(Match(Index("subdomain_by_name"), username))
+    );
+    console.log(`exists in db at ${ref}`);
 
-  if ((!isDev && splitHost.length === 3) || (isDev && splitHost.length === 2)) {
-    let page = splitHost[0];
-    // check to see if page exists in db
-    try {
-      const {
-        data: { sessionId: savedPageSessionId },
-        ref,
-      } = await client.query(Get(Match(Index("subdomain_by_name"), page)));
+    /* DO NOT UPDATE unless they have the key associated with this DID
+    if (sessionId === savedPageSessionId) {
+      await client.query(
+        Update(ref, {
+          data: {
+            name,
+            ipns,
+          },
+        })
+      );
+    }
 
-      if (sessionId === savedPageSessionId) {
+    res.setHeader("Set-Cookie", `token=${token}`);
+    */
+    res.status(500).send();
+    return;
+  } catch (e) {
+    if (e.name === "NotFound") {
+      console.log(`page <${username}> not in db, create it`);
+      try {
+        // Create a document in a collection
         await client.query(
-          Update(ref, {
+          Create(Collection("subdomains"), {
             data: {
-              html,
-              email,
+              name: username,
+              ipns,
             },
           })
         );
-      }
-
-      res.setHeader("Set-Cookie", `token=${token}`);
-      res.status(200).json({ editLink: `${req.headers.host}/?edit=${token}'` });
-      return;
-    } catch (e) {
-      if (e.name === "NotFound") {
-        try {
-          // Create a document in a collection
-          await client.query(
-            Create(Collection("subdomains"), {
-              data: {
-                sessionId,
-                html,
-                email,
-                name: page,
-              },
-            })
-          );
-          res.setHeader("Set-Cookie", `token=${token}`);
-          res
-            .status(200)
-            .json({ editLink: `${req.headers.host}/?edit=${token}'` });
-          return;
-        } catch (e) {
-          console.error(new Error(e.message));
-          res.status(500).json({ stack: e.stack, message: e.message });
-          return;
-        }
-      } else {
+        res.status(200).send();
+        return;
+      } catch (e) {
         console.error(new Error(e.message));
         res.status(500).json({ stack: e.stack, message: e.message });
         return;
       }
+    } else {
+      console.error(new Error(e.message));
+      res.status(500).json({ stack: e.stack, message: e.message });
+      return;
     }
   }
 };

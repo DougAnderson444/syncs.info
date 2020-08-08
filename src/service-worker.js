@@ -85,7 +85,7 @@ self.addEventListener("message", async (event) => {
       break;
   }
 });
-
+/*
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || event.request.headers.has("range"))
     return;
@@ -117,7 +117,7 @@ self.addEventListener("fetch", (event) => {
 		return;
 	}
 	*/
-
+/*
   if (event.request.cache === "only-if-cached") return;
 
   // for everything else, try the network first, falling back to
@@ -138,3 +138,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+*/

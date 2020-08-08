@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed } from "bip39";
 import IPFS from "ipfs";
 import * as cryptoKeys from "human-crypto-keys";
 import createWallet from "streamlined-idm-wallet-sdk";
-import { DID_DOC_TLD } from "./constants";
+import { DID_DOC_TLD } from "./constants.js";
 
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
@@ -22,6 +22,30 @@ const recordDNSLink = async (username, ipnsHash, tld) => {
   }
 };
 
+export const savePage = async (body) => {
+  console.log("saving page to fauna");
+  try {
+    const res = await fetch("/api/save-page", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      console.log("Saved to fauna");
+      return true
+    }else{
+      console.log("[FAIL] NOT Saved to fauna");
+      return false
+    }
+  } catch ({ name, message }) {
+    console.log("Fauna ERROR");
+    console.error(`${name}: ${message}`);
+    return false
+  }
+}
+
 export const createNewUser = async (
   username,
   password,
@@ -33,18 +57,18 @@ export const createNewUser = async (
 ) => {
   // STEPS
   // 1. use username & password to create RSA-pem & backup mnemonic
-  const { algorithm, mnemonic, seed, masterKeyPair } = await passwordToPem(
-    username,
-    password
-  );
+  console.log(`Step 1: Create keypair`)
+  const { algorithm, mnemonic, seed, masterKeyPair } = await passwordToPem(    username,    password  );
 
   // 2. create wallet
+  console.log(`Step 2: Create  wallet`)
   let wallet = await createWallet({
     ipfs: ipfsNode,
     apiMultiAddr,
     wsMultiAddr,
   });
 
+  console.log(`Step 3: Get  identity`)
   const identity = await wallet.identities.create("ipid", {
     profileDetails: {
       "@context": "https://schema.org",
@@ -77,6 +101,11 @@ export const createNewUser = async (
   
   // 3. Save to DNS
   await recordDNSLink(username, did.replace('did:ipid:',"/ipns/"), DID_DOC_TLD);
+
+  // 4. save to Fauna
+  await savePage( { username, ipns: did.replace('did:ipid:',"/ipns/") } )
+
+  return
 };
 
 // password >> JWK raw >> pem
