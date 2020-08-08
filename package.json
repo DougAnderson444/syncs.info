@@ -28,7 +28,7 @@
     "prom-client": "^12.0.0",
     "sapper-environment": "^1.0.1",
     "sirv": "^0.4.0",
-    "streamlined-idm-wallet-sdk": "file:../streamlined-idm-wallet-sdk/",
+    "streamlined-idm-wallet-sdk": "DougAnderson444/streamlined-idm-wallet-sdk",
     "uid-promise": "^1.1.0",
     "zxcvbn": "^4.4.2"
   },
