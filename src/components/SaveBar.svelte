@@ -103,7 +103,7 @@
 <!-- Put a banner here: Temporary page! Wanna go steady? Secure this page  -->
 
 <div class={status}>
-  <p class="last-saved">Temporary page. Wanna go steady? Secure this page:</p>
+  <p class="last-saved" id="save-bar">Temporary page. Wanna go steady? Secure this page:</p>
   <div class="edit-link-and-save">
     <div>
       <SaveButton on:click={savePage} {saveState} />

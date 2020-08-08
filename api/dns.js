@@ -12,13 +12,11 @@ module.exports = async (req, res) => {
     type: "TXT",
     value: dnslinkurl,
   };
-  console.log(`Dev token is ${process.env.SAPPER_APP_DNSTOKEN}`);
-  console.log(`DNS object is is \n ${JSON.stringify(dataObj)}`);
 
   var tld = req.query.tld || 'peerpiper.io' // top level domain, peerpiper or syncs.info
 
   const resp = await postData(
-    `https://api.zeit.co/v2/domains/${tld}/records`,
+    `https://api.vercel.com/v2/domains/${tld}/records`,
     dataObj
   );
   console.log(`POST response is: ` + resp.uid);
@@ -31,7 +29,7 @@ async function postData(url = "", data = {}) {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.SAPPER_APP_DNSTOKEN}`,
+      Authorization: `Bearer ${process.env.SAPPER_APP_VERCEL_TOKEN}`,
       // 'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: JSON.stringify(data), // body data type must match "Content-Type" header

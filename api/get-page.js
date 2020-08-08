@@ -6,6 +6,7 @@ import { client } from "../src/js/db";
 const { Get, Match, Index } = faunadb.query;
 
 export default async (req, res) => {
+
   let {
     query: { page },
     cookies: { token, linkToken }

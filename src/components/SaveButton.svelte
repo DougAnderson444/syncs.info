@@ -32,7 +32,7 @@
   }
 </style>
 
-<button {disabled} class={saveState} on:click={() => dispatch('click')}>
+<button {disabled} class={saveState} on:click={() => dispatch('click')} id='save-button'>
   {#if saveState == 'SAVING'}
     ⏳
   {:else if saveState == 'ERROR'}
