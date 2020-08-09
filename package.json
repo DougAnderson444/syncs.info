@@ -19,7 +19,7 @@
     "faunadb": "^2.14.2",
     "human-crypto-keys": "^0.1.4",
     "ipfs": "^0.48.1",
-    "ipfs-http-client": "^44.0.0",
+    "ipfs-http-client": "^45.0.0",
     "ipns": "^0.7.3",
     "it-last": "^1.0.2",
     "normalize-value": "^1.0.1",

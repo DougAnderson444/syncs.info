@@ -29,7 +29,7 @@
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
-  import { DEVICE_TYPES } from 'streamlined-idm-wallet-sdk/src/identities/identity/utils/constants/devices'
+  import { DEVICE_TYPES } from "../../js/constants";
 
   $deviceName = 'My Samsung'
   $deviceType = DEVICE_TYPES[0]
