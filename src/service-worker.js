@@ -1,7 +1,10 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
-import { parseCreateUserMsg } from "./js/bridgeFunctions.js";
+const { createProxyServer } = require("ipfs-postmsg-proxy");
 const node = require("./js/ipfsNode");
-import * as pro from "./js/process";
+
+//import { parseCreateUserMsg } from "./js/bridgeFunctions.js";
+//import * as pro from "./js/process";
+//import { startPings } from "./js/pubsubApplet";
 
 let ipfsNode;
 
@@ -16,7 +19,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(ASSETS)
-      .then((cache) => cache.addAll(to_cache))
+      //.then((cache) => cache.addAll(to_cache))
       .then(() => {
         //self.skipWaiting();
       })
@@ -30,20 +33,18 @@ self.addEventListener("activate", (event) => {
       for (const key of keys) {
         if (key !== ASSETS) await caches.delete(key);
       }
-      //console.log("Activiating, nodeGetter");
-      //await nodeGetter();
-
       self.clients.claim(); // claim control of the service worker business
     })
   );
 });
 
 async function nodeGetter(username) {
-  console.log(`in nodeGetter`, username)
+  console.log(`in nodeGetter`, username);
   // start the ipfs node
   try {
     let ipfs = await node.get(username);
     ipfsNode = ipfs;
+    connectProxy();
     const { agentVersion, id } = await ipfs.id();
     const peerInfos = await ipfs.swarm.peers();
     console.log(`The peers are `, peerInfos);
@@ -60,6 +61,7 @@ self.addEventListener("message", async (event) => {
     case "id":
       await nodeGetter(data.args[0]);
       const { id } = await ipfsNode.id();
+      console.log(`Id is `, id);
       event.ports[0].postMessage(id.toString());
       break;
     case "save":
@@ -75,9 +77,24 @@ self.addEventListener("message", async (event) => {
       break;
 
     case "createUser":
-      const { username, password, deviceName, deviceType, apiUrl, wsUrl } = parseCreateUserMsg(data.args);
-      await pro.createNewUser(username, password, deviceName, deviceType, ipfsNode, apiUrl, wsUrl)
-      event.ports[0].postMessage('User Created');
+      const {
+        username,
+        password,
+        deviceName,
+        deviceType,
+        apiUrl,
+        wsUrl,
+      } = parseCreateUserMsg(data.args);
+      await pro.createNewUser(
+        username,
+        password,
+        deviceName,
+        deviceType,
+        ipfsNode,
+        apiUrl,
+        wsUrl
+      );
+      event.ports[0].postMessage("User Created");
       break;
 
     default:
@@ -138,3 +155,16 @@ self.addEventListener("fetch", (event) => {
   );
 });
 */
+
+function connectProxy() {
+  createProxyServer(() => ipfsNode, {
+    addListener: self.addEventListener && self.addEventListener.bind(self),
+    removeListener:
+      self.removeEventListener && self.removeEventListener.bind(self),
+    postMessage: (data) => {
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => client.postMessage(data));
+      });
+    },
+  });
+}

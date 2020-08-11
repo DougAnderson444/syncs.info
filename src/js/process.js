@@ -28,23 +28,23 @@ export const savePage = async (body) => {
     const res = await fetch("/api/save-page", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     if (res.ok) {
       console.log("Saved to fauna");
-      return true
-    }else{
+      return true;
+    } else {
       console.log("[FAIL] NOT Saved to fauna");
-      return false
+      return false;
     }
   } catch ({ name, message }) {
     console.log("Fauna ERROR");
     console.error(`${name}: ${message}`);
-    return false
+    return false;
   }
-}
+};
 
 export const createNewUser = async (
   username,
@@ -58,55 +58,98 @@ export const createNewUser = async (
 ) => {
   // STEPS
   // 1. use username & password to create RSA-pem & backup mnemonic
-  console.log(`Step 1: Create keypair`)
-  const { algorithm, mnemonic, seed, masterKeyPair } = await passwordToPem(    username,    password  );
+  console.log(`Step 1: Create Master keypair`);
+  const { algorithm, mnemonic, seed, masterKeyPair } = passwordToPem(
+    username,
+    password
+  );
 
   // 2. create wallet
-  console.log(`Step 2: Create  wallet`)
-  let wallet = await createWallet({
+  console.log(`Step 2: Create  wallet`);
+  let wallet = createWallet({
     ipfs: ipfsNode,
     apiMultiAddr,
     wsMultiAddr,
   });
 
-  console.log(`Step 3: Get  identity`)
-  const identity = await wallet.identities.create("ipid", {
-    profileDetails: {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: username,
-    },
-    deviceInfo: {
-      type: deviceType,
-      name: deviceName,
-    },
-    backupData: {
-      algorithm,
-      mnemonic,
-      seed,
-      ...masterKeyPair,
-    },
-  });
+  await mnemonic;
+  await wallet;
 
-  let did = await identity.getDid();
+  console.log(`Step 3: Create identity`);
+  wallet.identities
+    .create("ipid", {
+      profileDetails: {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: username,
+      },
+      deviceInfo: {
+        type: deviceType,
+        name: deviceName,
+      },
+      backupData: {
+        algorithm,
+        mnemonic,
+        seed,
+        ...masterKeyPair,
+      },
+    })
+    .then(async (identity) => {
+      let did = await identity.getDid();
 
-  console.log("Serialized:", {
-    addedAt: identity.getAddedAt(),
-    id: identity.getId(),
-    did,
-    devices: identity.devices.list(),
-    backup: identity.backup.getData(),
-    profile: identity.profile.getDetails(),
-  });
+      console.log("Serialized:", {
+        addedAt: identity.getAddedAt(),
+        id: identity.getId(),
+        did,
+        devices: identity.devices.list(),
+        backup: identity.backup.getData(),
+        profile: identity.profile.getDetails(),
+      });
 
-  
-  // 3. Save to DNS
-  await recordDNSLink(username, did.replace('did:ipid:',"/ipns/"), DID_DOC_TLD);
+      // 4. Get pem to add Data service IPNS
+      // index = 1 for incremented seed for new key
+      console.log(`Step 4: Create data /ipns/ service`);
+      passwordToPem(username, password, 1)
+        .then(async (pem) => {
+          let peerId = await pemToPeerId(pem);
+          $wallet.identities
+            .addService(
+              "ipid",
+              { privateKey: backupData.privateKey },
+              {
+                id: `data`,
+                type: "DataHub",
+                serviceEndpoint: `/ipns/${peerId}`,
+              }
+            )
+            .catch((error) => {
+              console.log(error);
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
 
-  // 4. save to Fauna
-  await savePage( { username, ipns: did.replace('did:ipid:',"/ipns/") } )
+      // 5. Save to DNS
+      console.log(`Step 5: Create dns link to /ipns/DIDDoc`);
+      recordDNSLink(
+        username,
+        did.replace("did:ipid:", "/ipns/"),
+        DID_DOC_TLD
+      ).catch((error) => {
+        console.log(error);
+      });
 
-  return
+      // 6. save to Fauna
+      console.log(`Step 6: Save username to Fauna`);
+      savePage({ username, ipns: did.replace("did:ipid:", "/ipns/") }).catch(
+        (error) => {
+          console.log(error);
+        }
+      );
+    });
+
+  return;
 };
 
 // password >> JWK raw >> pem
@@ -130,10 +173,21 @@ export async function passwordToPem(username, password, index = 0) {
   const seed32 = await IPFS.multihashing.digest(buf, "sha2-256"); // seed needs to be 32 byte uint8array
   const ent = Buffer.from(seed32); // use seed as entropy
   const mnemonic = entropyToMnemonic(ent);
-  const seed = await mnemonicToSeed(mnemonic); // ensure you can get the seed from mnemonics
-  const masterKeyPair = await cryptoKeys.getKeyPairFromSeed(seed, "rsa"); // keyPair is pem (privacy enhanced mail, key format)
-  const pem = masterKeyPair.privateKey; // it's in pem format
+  let seedBuffer = await mnemonicToSeed(mnemonic); // ensure you can get the seed from mnemonics
+  if (index > 0) {
+    seedBuffer = Buffer.from(
+      Buffer.from(seedBuffer).toString("hex") +
+        Buffer.from(index.toString()).toString("hex")
+    );
+  }
+  const masterKeyPair = await cryptoKeys.getKeyPairFromSeed(seedBuffer, "rsa"); // keyPair is pem (privacy enhanced mail, key format)
+  //const pem = masterKeyPair.privateKey; // it's in pem format
   return { algorithm: "rsa", mnemonic, masterKeyPair, seed };
+}
+async function pemToPeerId(pem) {
+  const privKeyRaw = await IPFS.crypto.keys.import(pem); // privKeyRaw is JWK javascript web key
+  const peerId = await IPFS.PeerId.createFromPrivKey(privKeyRaw.bytes);
+  return peerId;
 }
 
 async function pemToIPFS(pem) {
@@ -161,4 +215,3 @@ async function pemToIPFS(pem) {
 
   return ipfs;
 }
-

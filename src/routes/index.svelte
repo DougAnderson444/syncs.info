@@ -1,10 +1,28 @@
 <script>
+  import ServiceWorkerComp from '../components/AppSections/SubComp/ServWorkerComp.svelte'
   import { appSections } from '../components/AppSections'
+  import IPFSComp from '../components/IPFSComp.svelte'
 
   //svelte stores
   import { appSection } from '../js/stores.js'
+  import { onMount } from 'svelte'
 
+  export let nodeId = false
+
+  let username
   let active
+
+  onMount(async () => {
+    let isDev = window.location.hostname.includes('localhost')
+    let splitHost = window.location.hostname.split('.')
+
+    if (
+      (!isDev && splitHost.length === 3) ||
+      (isDev && splitHost.length === 2)
+    ) {
+      username = splitHost[0]
+    }
+  })
 
   $appSection = 'Landing'
   $: active = appSections[$appSection]
@@ -25,4 +43,9 @@
 
 <div class="content">
   <svelte:component this={active.component} />
+  {#if username}
+    <!-- Only load IPFS if it's a subdomain in use -->
+    <!-- IPFSComp {username} / -->
+    <ServiceWorkerComp bind:nodeId />
+  {/if}
 </div>

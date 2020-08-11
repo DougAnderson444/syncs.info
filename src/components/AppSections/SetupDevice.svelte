@@ -16,8 +16,8 @@
     SecondaryText,
   } from '@smui/list'
 
-  import { exchangeMessages } from '../../js/connectServiceWorker.js'
-  import { createUser } from '../../js/bridgeFunctions.js'
+  //import { exchangeMessages } from '../../js/connectServiceWorker.js'
+  //import { createUser } from '../../js/bridgeFunctions.js'
 
   //svelte stores
   import {
@@ -26,10 +26,13 @@
     deviceName,
     username,
     password,
+    ipfsNode,
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
-  import { DEVICE_TYPES } from "../../js/constants";
+  import { DEVICE_TYPES } from '../../js/constants'
+
+  import * as pro from '../../js/process'
 
   $deviceName = 'My Samsung'
   $deviceType = DEVICE_TYPES[0]
@@ -39,15 +42,16 @@
 
   const handleButtonClick = async () => {
     // send the data to the service worker to create the account in the background
-    complete = await createUser(
+    await pro.createNewUser(
       $username,
       $password,
       $deviceName,
       $deviceType,
+      $ipfsNode,
       process.env.SAPPER_APP_API_URL,
       process.env.SAPPER_APP_WS_URL,
     )
-    //$appSection = 'Landing'
+    $appSection = 'Landing'
   }
 </script>
 

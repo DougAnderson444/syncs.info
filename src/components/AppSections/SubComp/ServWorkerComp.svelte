@@ -1,11 +1,15 @@
 <script>
-  import { onMount } from 'svelte'
   import * as sw from '../../../js/connectServiceWorker.js'
+  import { createProxyClient } from 'ipfs-postmsg-proxy'
+
+  //svelte stores
+  import { ipfsNode } from '../../../js/stores.js'
+  import { onMount } from 'svelte'
 
   export let nodeId
   let cid = ''
-  export let value = ''
-
+  let value = ''
+  let peerInfo
   onMount(async () => {
     let isDev = window.location.hostname.includes('localhost')
     let splitHost = window.location.hostname.split('.')
@@ -19,49 +23,40 @@
     }
 
     if ('serviceWorker' in navigator && username) {
-      console.log(`init `, username)
       nodeId = await sw.init(username)
-      console.log(`nodeid is ${nodeId}`)
       if (!nodeId) {
         nodeId = await sw.exchangeMessages(
           JSON.stringify({ func: 'id', args: [username] }),
         )
-        console.log(`nodeid is ${nodeId}`)
       }
+      console.log(`nodeid is ${nodeId}`)
+      $ipfsNode = createProxyClient({
+        addListener: navigator.serviceWorker.addEventListener.bind(
+          navigator.serviceWorker,
+        ),
+        postMessage: (data) =>
+          navigator.serviceWorker.controller.postMessage(data),
+      })
+      peerInfo = await $ipfsNode.id()
+      console.log(`proxy nodeid is ${peerInfo.id}`)
     } else {
       console.log('No service-worker on this browser')
     }
   })
-
-  const handleSubmit = async () => {
-    console.log(`Submitted ${value}`)
-    if (value) {
-      cid = await sw.exchangeMessages(
-        JSON.stringify({ func: 'save', args: [value] }),
-      )
-      value = '' //reset
-    }
-  }
 </script>
 
 {#if nodeId}
   {#await nodeId then nodeId}
-    <!--    NodeId: {nodeId} <br /> -->
-    <p>Save some text to IPFS:</p>
-    <form on:submit|preventDefault={handleSubmit}>
-      <input placeholder="Hello Doug from IPFS" bind:value />
-    </form>
+    NodeId: {nodeId}
     <br />
+    <p>Service Worker is running.</p>
   {/await}
 {/if}
 
-{#if cid}
-  {#await cid then cid}
-    <a href="https://gateway.ipfs.io/ipfs/{cid}" target="_blank">{cid}</a>
+{#if peerInfo}
+  {#await peerInfo then peerInfo}
+    Proxy NodeId: {peerInfo.id}
     <br />
-    <a href="https://super.peerpiper.io:8088/ipfs/{cid}" target="_blank">
-      {cid}
-    </a>
-    <br />
+    <p>Proxy is working.</p>
   {/await}
 {/if}

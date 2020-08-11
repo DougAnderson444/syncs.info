@@ -1,11 +1,26 @@
 <script>
   import { onMount } from 'svelte'
-  export let ipfs, cid, res
-  export let textContent = []
+  import IpfsResolve from './IpfsResolve.svelte'
+
+  export let ipfs
+  let cid, nodeId, dagTime, start
+  let i = 0
+  let key, value
+  let textContent = {}
 
   onMount(async () => {
-    res = await ipfs.id() //works
+    nodeId = await ipfs.id() //works
   })
+
+  const handleSubmit = async () => {
+    start = Date.now()
+    textContent[i] = { key, value }
+    i++
+    ipfs.dag.put(textContent).then((c) => {
+      cid = c
+      dagTime = Date.now() - start
+    })
+  }
 
   const handleClick = async () => {
     let path = '/tmp/myfile.txt'
@@ -39,27 +54,37 @@
   })
 </script>
 
+<style>
+  ul {
+    list-style: none;
+  }
+</style>
+
 <br />
-{#if res}
-  {#await res then res}
-    Res: {res.id}
-    <br />
-    <button on:click={handleClick}>Save Data</button>
-  {/await}
-{/if}
+{#if nodeId}
+  {#await nodeId then nodeId}
+    <!--    NodeId: {nodeId} <br /> -->
+    <p>Save some text to IPFS:</p>
+    <form on:submit|preventDefault={handleSubmit}>
+      <input placeholder="My favorite color" bind:value={key} name="key" />
+      <input placeholder="Blue" bind:value name="value" />
+      <input type="submit" value="Save" />
+    </form>
+    {#if textContent && cid}
+      <br />
+      {#if cid}
+        IPLD Root Hash:
+        <a href="https://explore.ipld.io/#/explore/{cid}" target="_blank">
+          {cid}
+        </a>
+        ({dagTime})
+      {/if}
+      <ul>
+        {#each [...Object.entries(textContent)] as [k, text]}
+          <li>{k}. {text.key}: {text.value}</li>
+        {/each}
+      </ul>
+    {/if}
 
-{#if cid}
-  {#await cid then cid}
-    <a href="https://explore.ipld.io/#/explore/{cid}" target="_blank">Cid:</a>
-    {cid}
-    <br />
   {/await}
-{/if}
-
-{#if textContent}
-  <ul>
-    {#each textContent as text}
-      <li>{text}</li>
-    {/each}
-  </ul>
 {/if}

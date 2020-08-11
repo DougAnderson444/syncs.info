@@ -1,41 +1,33 @@
 <script>
-  import ServiceWorkerComp from './SubComp/ServWorkerComp.svelte'
   import { fade, fly, slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
 
-  export let nodeId = false
+  import DataTest from '../DataTest.svelte'
+  //svelte stores
+  import { ipfsNode } from '../../js/stores.js'
 </script>
 
 <style>
   h1,
-  figure,
-  p {
+  figure {
     text-align: center;
     margin: 0 auto;
   }
-
   h1 {
     font-size: 2.8em;
     text-transform: uppercase;
     font-weight: 700;
     margin: 0 0 0.5em 0;
   }
-
   figure {
     margin: 0 0 1em 0;
   }
-
   img {
     width: 100%;
     max-width: 400px;
     margin: 0 0 1em 0;
   }
-
-  p {
-    margin: 1em auto;
-  }
-
   @media (min-width: 480px) {
     h1 {
       font-size: 4em;
@@ -44,7 +36,7 @@
   .container {
     position: relative;
     width: 400px;
-    height: 450px;
+    height: 600px;
     align-content: center;
     margin: auto;
     overflow: auto;
@@ -73,7 +65,7 @@
 
 <div class="container">
   <center>
-    {#if !nodeId}
+    {#if !$ipfsNode}
       <h1>Loading...</h1>
       <div class="placeholder" out:fade={{ duration: 500 }}>
         <figure class="below">
@@ -89,13 +81,8 @@
           <img alt="OK" src="ok.png" />
           <figcaption>Save and sync your data!</figcaption>
         </figure>
+        <DataTest ipfs={$ipfsNode} />
       </div>
     {/if}
   </center>
-</div>
-<div style="clear:all;" />
-<div>
-  <p>
-    <ServiceWorkerComp bind:nodeId />
-  </p>
 </div>

@@ -4,14 +4,13 @@
  *
  */
 
-
 export async function init(username) {
   // return a promise for an IPFS proxy instance
   return new Promise(async (resolve, reject) => {
     // Always register the service worker to get started
     let registration = await navigator.serviceWorker.register(
       "/service-worker.js",
-      { scope: "/" }
+      { scope: "/" } 
     );
 
     registration.update(); //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/update
@@ -47,33 +46,40 @@ export async function init(username) {
       console.log("No controller right now");
     }
 
-    // When service worker state activates, start up the proxy client to connect to it
-    // Experimental tho: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/oncontrollerchange
+    // check to see if there's a service worker running, but missing an IPFS node
+    if (registration.active && navigator.serviceWorker.controller) {
+      try {
+        let res = await exchangeMessages(
+          JSON.stringify({ func: "id", args: [username] })
+        );
+        console.log("active, resolve with: ", res);
+        resolve(res);
+      } catch (error) {
+        reject(error);
+      }
+    }
+
+    // Experimental: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/oncontrollerchange
     navigator.serviceWorker.oncontrollerchange = function () {
-      this.controller.onstatechange = function () {
+      this.controller.onstatechange = async () => {
         console.log(
           "controller state change: ",
           navigator.serviceWorker.controller.state
         );
         // service worker changed to active
         if (this.state === "activated") {
-          resolve();
-        } 
+          try {
+            let res = await exchangeMessages(
+              JSON.stringify({ func: "id", args: [username] })
+            );
+            console.log("activated, resolve with: ", res);
+            resolve(res);
+          } catch (error) {
+            reject(error);
+          }
+        }
       };
     };
-
-    // check to see if there's a service worker running, but missing an IPFS node
-    if (registration.active && navigator.serviceWorker.controller) {
-      // if no node, then load one up in this service worker
-      //console.log(`Active, get ipfs`);
-      try {
-        let res = await exchangeMessages(JSON.stringify({ func: 'id', args: [username] })); // await for it to finish before using it
-        resolve(res);
-      } catch (error) {
-        reject(error);
-      }
-      
-    }
   });
 }
 
@@ -89,7 +95,6 @@ export function exchangeMessages(message) {
       if (event.data.error) {
         reject(event.data.error);
       } else {
-        //console.log("loaded response: ", event.data);
         resolve(event.data);
       }
     };
