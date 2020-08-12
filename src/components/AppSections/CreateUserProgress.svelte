@@ -92,6 +92,7 @@
             serviceEndpoint: `/ipns/${$dataPeerId.toB58String()}`,
           },
         )
+        $appSection = 'DataTest'
       })
   })
 </script>

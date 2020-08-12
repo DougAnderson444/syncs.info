@@ -3,7 +3,7 @@
   import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
 
-  import DataTest from '../DataTest.svelte'
+  import DataTest from './DataTest.svelte'
   //svelte stores
   import { ipfsNode } from '../../js/stores.js'
 </script>
