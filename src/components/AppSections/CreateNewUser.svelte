@@ -98,7 +98,8 @@
         input$aria-controls="super-helper-Username"
         input$aria-describedby="super-helper-Username"
         autocomplete="username"
-        disabled />
+        disabled
+        id="username" />
       <HelperText id="super-helper-Username">
         This will be your @username
       </HelperText>
@@ -115,7 +116,8 @@
         on:keydown={handlePasswordInput}
         on:keyup={handlePasswordInput}
         on:keydown={handleInputKeyPress}
-        input$autocomplete="new-password" />
+        input$autocomplete="new-password"
+        id="password" />
       <HelperText id="super-helper">
         Easy to remember phrase like "I grew up on Main Street back in 87"
       </HelperText>
@@ -133,12 +135,11 @@
       input$aria-controls="super-helper-2"
       input$aria-describedby="super-helper-2"
       on:keypress={handleInputKeyPress}
-      on:keyup={checkMatch} 
-      on:keydown={checkMatch} 
-      on:blur={checkMatch} 
-      on:focus={checkMatch} 
-      
-      />
+      on:keyup={checkMatch}
+      on:keydown={checkMatch}
+      on:blur={checkMatch}
+      on:focus={checkMatch}
+      id="password-confirm" />
     <HelperText id="super-helper-2">Press Enter when you're ready!</HelperText>
 
     <Warning show={!match}>

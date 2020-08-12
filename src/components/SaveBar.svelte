@@ -22,11 +22,10 @@
     var subdomain1 = parts.shift()
     var upperleveldomain = parts.join('.')
 
-    console.log(`host: ${$page.host}`)
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
-    console.log(`$page.host: ${$page.host}`)
+    // console.log(`$page.host: ${$page.host}`)
     var count = ($page.host.match(/\./g) || []).length
 
     subdomain = $page.host.includes(`.${process.env.SAPPER_APP_TLD}`)
@@ -36,7 +35,6 @@
 
     if (!subdomain) status = 'hidden'
     else {
-      console.log(`subdomain: ${subdomain}`)
       subdomain = subdomain.replace(`.`, '') //lose the dot
       ;(async () => {
         let str = $page.host.includes('.localhost')

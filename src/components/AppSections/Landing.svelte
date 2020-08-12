@@ -34,18 +34,15 @@
     }
   }
   .container {
-    position: relative;
-    width: 400px;
-    height: 600px;
     align-content: center;
-    margin: auto;
+    margin: 1em;
     overflow: auto;
   }
-  .placeholder,
+    .placeholder,
   .replacement {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 15px;
+    left: 135px;
     margin: auto;
   }
   .replacement {
@@ -61,28 +58,40 @@
     margin-left: auto;
     margin-right: auto;
   }
+  .holder {
+    width: auto;
+    height: 400px;
+  }
 </style>
 
 <div class="container">
   <center>
-    {#if !$ipfsNode}
-      <h1>Loading...</h1>
-      <div class="placeholder" out:fade={{ duration: 500 }}>
-        <figure class="below">
-          <img class="below" alt="Wait" src="wait-for-it.png" />
-          <figcaption>Loading the blockchain in your browser</figcaption>
-        </figure>
-      </div>
-    {:else}
-      <h1>Great success!</h1>
-      <div style="clear:all;" />
-      <div class="replacement" in:fade={{ duration: 1500 }}>
-        <figure>
-          <img alt="OK" src="ok.png" />
-          <figcaption>Save and sync your data!</figcaption>
-        </figure>
+    <div class="holder">
+      {#if !$ipfsNode}
+        <h1>Loading...</h1>
+        <div class="placeholder" out:fly={{ y: -500, duration: 750 }}>
+          <figure class="below">
+            <img class="below" alt="Wait" src="wait-for-it.png" />
+            <figcaption>Loading the blockchain in your browser</figcaption>
+          </figure>
+        </div>
+      {:else}
+        <h1>Great success!</h1>
+        <div style="clear:all;" />
+        <div class="replacement" in:fly={{ y: 500, duration: 750 }}>
+          <figure>
+            <img alt="OK" src="ok.png" />
+            <figcaption>You're ready to rock!</figcaption>
+          </figure>
+        </div>
+      {/if}
+    </div>
+    <div style="clear:all;" />
+    {#if $ipfsNode}
+      <div>
         <DataTest ipfs={$ipfsNode} />
       </div>
     {/if}
   </center>
 </div>
+<div style="clear:all;" />

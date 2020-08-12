@@ -7,8 +7,6 @@ export const get = async (username) => {
   if (!node) {
     let repo = "ipfs-"+ username;
     
-    console.log(repo)
-    
     // pass must be at least 20 char long
     const pass = "01234567890123456789";
 
@@ -22,10 +20,10 @@ export const get = async (username) => {
         //},
         Addresses: {
           Delegates: [
-            //"/dns4/node0.delegate.ipfs.io/tcp/443/https",
-            //"/dns4/node1.delegate.ipfs.io/tcp/443/https",
-            //"/dns4/node2.delegate.ipfs.io/tcp/443/https",
-            //"/dns4/node3.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node0.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node1.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node2.delegate.ipfs.io/tcp/443/https",
+            "/dns4/node3.delegate.ipfs.io/tcp/443/https",
           ],
         },
       },

@@ -24,34 +24,20 @@
     appSection,
     deviceType,
     deviceName,
-    username,
-    password,
     ipfsNode,
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
   import { DEVICE_TYPES } from '../../js/constants'
 
-  import * as pro from '../../js/process'
-
   $deviceName = 'My Samsung'
   $deviceType = DEVICE_TYPES[0]
   let selectedDeviceType = $deviceType
-
-  export let complete
+  let disabled = true
+  $: $ipfsNode ? (disabled = false) : (disabled = true)
 
   const handleButtonClick = async () => {
-    // send the data to the service worker to create the account in the background
-    await pro.createNewUser(
-      $username,
-      $password,
-      $deviceName,
-      $deviceType,
-      $ipfsNode,
-      process.env.SAPPER_APP_API_URL,
-      process.env.SAPPER_APP_WS_URL,
-    )
-    $appSection = 'Landing'
+    $appSection = 'CreateUserProgress'
   }
 </script>
 
@@ -72,48 +58,43 @@
   }
 </style>
 
-{#if complete}
-  {#await complete}
-    Saving... takes a minute
-  {:then complete}
-    Create user: {complete}
-  {/await}
-{:else}
+<h3>Select what type of device this is (it's smart to add a few devices)</h3>
 
-  <h3>Select what type of device this is (it's smart to add a few devices)</h3>
+<div class="narrow vert">
+  <List class="list" radiolist>
+    {#each DEVICE_TYPES as device}
+      <Item>
+        <Graphic>
+          <Radio bind:group={selectedDeviceType} value={device} />
+        </Graphic>
+        <Graphic class="material-icons">
+          {device != 'desktop' ? device : 'computer'}
+        </Graphic>
+        <Label>{device}</Label>
+      </Item>
+    {/each}
+  </List>
+</div>
 
-  <div class="narrow vert">
-    <List class="list" radiolist>
-      {#each DEVICE_TYPES as device}
-        <Item>
-          <Graphic>
-            <Radio bind:group={selectedDeviceType} value={device} />
-          </Graphic>
-          <Graphic class="material-icons">
-            {device != 'desktop' ? device : 'computer'}
-          </Graphic>
-          <Label>{device}</Label>
-        </Item>
-      {/each}
-    </List>
-  </div>
+<h3>Name this device (it's smart to add a few devices)</h3>
+<div class="vert">
+  <Textfield
+    bind:value={$deviceName}
+    on:focus|once={() => {
+      $deviceName = ''
+    }}
+    variant="outlined"
+    label="Device Nickname"
+    input$aria-controls="helper-text-outlined-device"
+    input$aria-describedby="helper-text-outlined-device"
+    autocomplete="nickname" />
+  <HelperText id="helper-text-outlined-device">Device Nickname</HelperText>
+</div>
 
-  <h3>Name this device (it's smart to add a few devices)</h3>
-  <div class="vert">
-    <Textfield
-      bind:value={$deviceName}
-      on:focus|once={() => {
-        $deviceName = ''
-      }}
-      variant="outlined"
-      label="Device Nickname"
-      input$aria-controls="helper-text-outlined-device"
-      input$aria-describedby="helper-text-outlined-device"
-      autocomplete="nickname" />
-    <HelperText id="helper-text-outlined-device">Device Nickname</HelperText>
-  </div>
-
-  <Button variant="raised" on:click={handleButtonClick}>
-    <Label>Next</Label>
-  </Button>
+<Button variant="raised" on:click={handleButtonClick} {disabled}>
+  <Label>Next</Label>
+</Button>
+{#if disabled}
+  <br />
+  Just a moment while your browser finishes creating your Web3 space
 {/if}

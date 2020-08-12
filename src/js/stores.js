@@ -19,6 +19,8 @@ export const error = writable(0);
 export const dnsSuccess = writable(0);
 
 export const wallet = writable(0);
+export const rootCidPem = writable(0);
+export const dataPeerId = writable(0);
 
 const pub = async([$dataRootHash]) => {
   console.log(`Publishing $dataRootHash: `, $dataRootHash);

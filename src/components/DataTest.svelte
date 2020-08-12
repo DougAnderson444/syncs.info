@@ -1,6 +1,9 @@
 <script>
   import { onMount } from 'svelte'
   import IpfsResolve from './IpfsResolve.svelte'
+  import { goPush } from '../js/ipnsUtils'
+  //svelte stores
+  import { wallet, rootCidPem } from '../js/stores.js'
 
   export let ipfs
   let cid, nodeId, dagTime, start
@@ -20,6 +23,23 @@
       cid = c
       dagTime = Date.now() - start
     })
+
+    // check if wallet.isLocked
+    // on cid change, push it to go-IPFS Node
+    // Push it to the goIpfs node network
+    if ($rootCidPem)
+      goPush(
+        $rootCidPem,
+        process.env.SAPPER_APP_API_URL,
+        process.env.SAPPER_APP_WS_URL,
+        cid,
+      )
+        .then(() => {
+          console.log(`published to go ${Date.now() - start}ms`)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
   }
 
   const handleClick = async () => {
@@ -45,13 +65,6 @@
       console.log(err)
     }
   }
-
-  navigator.serviceWorker.addEventListener('message', function (event) {
-    console.log(event)
-    var clientId = event.data.client
-    let newMsg = 'Client ' + clientId + ' says: ' + event.data.message
-    textContent = [...textContent, newMsg]
-  })
 </script>
 
 <style>
