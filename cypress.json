@@ -1,5 +1,13 @@
 {
   "video": false,
   "projectId": "ge37h4",
-  "baseUrl": "http://localhost:3000"
+  "baseUrl": "http://localhost:3000",
+  "hosts": {
+    "*.localhost": "127.0.0.1",
+    "*.localhost:3000": "127.0.0.1"
+  },
+  "env": {
+    "subdomain": "douglas",
+    "some": "value"
+  }
 }
