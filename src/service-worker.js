@@ -39,12 +39,11 @@ self.addEventListener("activate", (event) => {
 });
 
 async function nodeGetter(username) {
-  console.log(`in nodeGetter`, username);
   // start the ipfs node
   try {
     let ipfs = await node.get(username);
     ipfsNode = ipfs;
-    connectProxy();
+    //connectProxy();
     const { agentVersion, id } = await ipfs.id();
     const peerInfos = await ipfs.swarm.peers();
     console.log(`The peers are `, peerInfos);
@@ -54,51 +53,54 @@ async function nodeGetter(username) {
 }
 
 self.addEventListener("message", async (event) => {
-  let data = JSON.parse(event.data);
-  console.log(data);
+  let data;
+  try {
+    data = JSON.parse(event.data);
+  } catch (e) {}
+  //console.log(data);
+  if (data) {
+    switch (data.func) {
+      case "id":
+        await nodeGetter(data.args[0]);
+        const { id } = await ipfsNode.id();
+        event.ports[0].postMessage(id.toString());
+        break;
+      case "save":
+        //console.log(`save data `, data.args[0]);
+        let cidStr;
+        for await (const result of ipfsNode.add(data.args[0])) {
+          //console.log(result);
+          cidStr = result.cid.toString();
+        }
+        //console.log("cid: ", cidStr);
+        await fetch(`https://super.peerpiper.io:8088/ipfs/${cidStr}`);
+        event.ports[0].postMessage(cidStr);
+        break;
 
-  switch (data.func) {
-    case "id":
-      await nodeGetter(data.args[0]);
-      const { id } = await ipfsNode.id();
-      console.log(`Id is `, id);
-      event.ports[0].postMessage(id.toString());
-      break;
-    case "save":
-      //console.log(`save data `, data.args[0]);
-      let cidStr;
-      for await (const result of ipfsNode.add(data.args[0])) {
-        //console.log(result);
-        cidStr = result.cid.toString();
-      }
-      //console.log("cid: ", cidStr);
-      await fetch(`https://super.peerpiper.io:8088/ipfs/${cidStr}`);
-      event.ports[0].postMessage(cidStr);
-      break;
+      case "createUser":
+        const {
+          username,
+          password,
+          deviceName,
+          deviceType,
+          apiUrl,
+          wsUrl,
+        } = parseCreateUserMsg(data.args);
+        await pro.createNewUser(
+          username,
+          password,
+          deviceName,
+          deviceType,
+          ipfsNode,
+          apiUrl,
+          wsUrl
+        );
+        event.ports[0].postMessage("User Created");
+        break;
 
-    case "createUser":
-      const {
-        username,
-        password,
-        deviceName,
-        deviceType,
-        apiUrl,
-        wsUrl,
-      } = parseCreateUserMsg(data.args);
-      await pro.createNewUser(
-        username,
-        password,
-        deviceName,
-        deviceType,
-        ipfsNode,
-        apiUrl,
-        wsUrl
-      );
-      event.ports[0].postMessage("User Created");
-      break;
-
-    default:
-      break;
+      default:
+        break;
+    }
   }
 });
 /*
@@ -155,7 +157,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 */
-
+connectProxy()
 function connectProxy() {
   createProxyServer(() => ipfsNode, {
     addListener: self.addEventListener && self.addEventListener.bind(self),

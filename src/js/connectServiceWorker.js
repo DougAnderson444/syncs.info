@@ -10,7 +10,7 @@ export async function init(username) {
     // Always register the service worker to get started
     let registration = await navigator.serviceWorker.register(
       "/service-worker.js",
-      { scope: "/" } 
+      { scope: "/" }
     );
 
     registration.update(); //https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/update
@@ -52,7 +52,6 @@ export async function init(username) {
         let res = await exchangeMessages(
           JSON.stringify({ func: "id", args: [username] })
         );
-        console.log("active, resolve with: ", res);
         resolve(res);
       } catch (error) {
         reject(error);
@@ -72,7 +71,6 @@ export async function init(username) {
             let res = await exchangeMessages(
               JSON.stringify({ func: "id", args: [username] })
             );
-            console.log("activated, resolve with: ", res);
             resolve(res);
           } catch (error) {
             reject(error);

@@ -29,7 +29,6 @@
           JSON.stringify({ func: 'id', args: [username] }),
         )
       }
-      console.log(`nodeid is ${nodeId}`)
       $ipfsNode = createProxyClient({
         addListener: navigator.serviceWorker.addEventListener.bind(
           navigator.serviceWorker,
@@ -45,18 +44,30 @@
   })
 </script>
 
+<style>
+  .tiny {
+    font-size: 0.7rem;
+  }
+</style>
+
 {#if nodeId}
   {#await nodeId then nodeId}
-    NodeId: {nodeId}
-    <br />
-    <p>Service Worker is running.</p>
+    <div class="tiny">
+      NodeId: {nodeId}
+      <br />
+      <p>Service Worker is running.</p>
+    </div>
+
   {/await}
 {/if}
 
 {#if peerInfo}
   {#await peerInfo then peerInfo}
-    Proxy NodeId: {peerInfo.id}
-    <br />
-    <p>Proxy is working.</p>
+    <div class="tiny">
+      Proxy NodeId: {peerInfo.id}
+      <br />
+      <p>Proxy is working.</p>
+    </div>
+
   {/await}
 {/if}
