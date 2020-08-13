@@ -14,7 +14,7 @@
     mounted = true
   })
 
-  $: if ($wallet && $wallet.locker.isLocked()) getRemainingTime()
+  $: if ($wallet && !$wallet.locker.isLocked()) getRemainingTime()
 
   onDestroy(() => {
     clearTimeout(idleTimeout)

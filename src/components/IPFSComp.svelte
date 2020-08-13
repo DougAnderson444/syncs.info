@@ -41,9 +41,8 @@
 {#if subdomain && nodeId}
   {#await nodeId then nodeId}
     <div class="tiny">
-      NodeId: {nodeId}
       <br />
-      <p>IPFS is running.</p>
+      <p>IPFS is running, NodeId: {nodeId}</p>
     </div>
   {/await}
 {/if}

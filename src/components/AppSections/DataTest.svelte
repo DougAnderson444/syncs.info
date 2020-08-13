@@ -31,8 +31,7 @@
     start = Date.now()
     textContent[i] = { key, value }
     i++
-    await $ipfsNode.dag.put(textContent)
-    cid = c
+    cid = await $ipfsNode.dag.put(textContent)
     dagTime = Date.now() - start
 
     // check if wallet.isLocked

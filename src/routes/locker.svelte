@@ -35,16 +35,16 @@
       }
     }
   }
-  
+
   const handleLockedChanged = () => {
     console.log(`Lock changed ${new Date(Date.now())}`)
-    //$lockerSection = 'LockScreen'
+    //$lockerSection = 'LockScreen' // lock and unlock signal
     $wallet = $wallet
   }
-  
-  $: if($wallet && $wallet.locker.isLocked()) $lockerSection = 'LockScreen'
 
-  //$: $wallet ? $wallet.locker.onLockedChange(handleLockedChanged) : null
+  $: if ($wallet && $wallet.locker.isLocked()) $lockerSection = 'LockScreen'
+
+  //$: $wallet ? $wallet.locker.onLockedChange(handleLockedChanged) : null  // lock and unlock signal
   $: active = lockerSections[$lockerSection]
 
   onMount(async () => {})
@@ -60,4 +60,6 @@
   {/if}
 
 </div>
-<Timer />
+{#if $wallet && !$wallet.locker.isLocked()}
+  <Timer />
+{/if}

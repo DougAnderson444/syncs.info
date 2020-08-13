@@ -49,21 +49,23 @@
 
 <div class="contain">
   <div>
-    <h1>Unlock your account</h1>
-    <Textfield
-      bind:value
-      type="password"
-      variant="outlined"
-      label="Passphrase"
-      input$aria-controls="super-helper"
-      input$aria-describedby="super-helper"
-      on:keypress={handleInputKeyPress} />
-    <HelperText id="super-helper">Enter your passphrase to unlock</HelperText>
+    <form class="form" on:submit|preventDefault={handleInputKeyPress}>
+      <h1>Unlock your account</h1>
+      <Textfield
+        bind:value
+        type="password"
+        variant="outlined"
+        label="Passphrase"
+        input$aria-controls="super-helper"
+        input$aria-describedby="super-helper"
+        autocomplete="current-password"
+        on:keypress={handleInputKeyPress} />
+      <HelperText id="super-helper">Enter your passphrase to unlock</HelperText>
 
-    <Warning show={error}>
-      <span slot="phrase">⛔️ {error.message} ⛔️</span>
-    </Warning>
-
+      <Warning show={error}>
+        <span slot="phrase">⛔️ {error.message} ⛔️</span>
+      </Warning>
+    </form>
   </div>
   {#if loading}
     <Spinner />

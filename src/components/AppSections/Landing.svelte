@@ -7,7 +7,7 @@
   //svelte stores
   import { ipfsNode } from '../../js/stores.js'
   import { onMount } from 'svelte'
-  let mounted
+  let mounted, CreateSubdomain
   let subdomain = false
   onMount(async () => {
     mounted = true
@@ -19,8 +19,10 @@
       (isDev && splitHost.length === 2)
     ) {
       subdomain = splitHost[0]
+    } else {
+      const module = await import('../CreateSubdomain.svelte')
+      CreateSubdomain = module.default
     }
-    //if (subdomain)
   })
 </script>
 
@@ -76,7 +78,7 @@
   }
   .holder {
     width: auto;
-    height: 400px;
+    height: 420px;
   }
 </style>
 
@@ -92,7 +94,7 @@
               <figcaption>Loading the blockchain in your browser</figcaption>
             </figure>
           </div>
-        {:else if (!subdomain || $ipfsNode)}
+        {:else if !subdomain || $ipfsNode}
           <h1>Great success!</h1>
           <div style="clear:all;" />
           <div class="replacement" in:fly={{ y: 500, duration: 750 }}>
@@ -108,6 +110,9 @@
         <div>
           <DataTest />
         </div>
+      {/if}
+      {#if !subdomain}
+        <svelte:component this={CreateSubdomain} />
       {/if}
     </center>
   {/if}
