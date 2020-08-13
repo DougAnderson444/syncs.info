@@ -14,14 +14,13 @@
     mounted = true
   })
 
-  $: if ($wallet && !$wallet.locker.isLocked()) getRemainingTime()
-
   onDestroy(() => {
     clearTimeout(idleTimeout)
   })
 
   const getRemainingTime = () => {
-    idleTimeout = setTimeout(getRemainingTime, 250)
+    if ($wallet && !$wallet.locker.isLocked())
+      idleTimeout = setTimeout(getRemainingTime, 500)
 
     time = $wallet.locker.idleTimer.getRemainingTime()
 
@@ -40,6 +39,8 @@
       ${$wallet.locker.isPristine() ? 'Pristine' : 'Not Pristine'}
       `
   }
+   
+  $: if ($wallet && !$wallet.locker.isLocked()) getRemainingTime()
 </script>
 
 <style>
@@ -55,6 +56,8 @@
   }
 </style>
 
-<div class="timer">
-  <span>{timeDisplay}</span>
-</div>
+{#if timeDisplay}
+  <div class="timer">
+    <span>{timeDisplay}</span>
+  </div>
+{/if}

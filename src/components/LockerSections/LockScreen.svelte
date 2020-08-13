@@ -23,7 +23,6 @@
       .getLock(lockType)
       .unlock(challenge)
       .then(() => {
-        console.log(`Unlocked`)
         $lockerSection = 'LockerContents'
       })
       .catch((err) => {

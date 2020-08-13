@@ -1,4 +1,5 @@
 <script>
+  import last from 'it-last' // gets last value of async iterator
   import { onMount } from 'svelte'
   import IpfsResolve from '../IpfsResolve.svelte'
   import { goPush } from '../../js/ipnsUtils'
@@ -15,15 +16,13 @@
   onMount(async () => {
     nodeId = await $ipfsNode.id() //works
 
-    if ($rootCidPem) {
+    if ($rootCidPem && $ipfsNode) {
       dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`)
-      console.log(`dnsLink`,dnsLink)
+      console.log(`dnsLink`, dnsLink)
       try {
-      resolvedDnsLink = $ipfsNode.resolve(dnsLink)        
-      didDoc = $ipfsNode.dag.get(resolvedDnsLink) //getDidDoc
-      } catch (error) {
-        
-      }
+        resolvedDnsLink = await last($ipfsNode.resolve(`/ipns/${dnsLink}`))
+        didDoc = await $ipfsNode.dag.get(resolvedDnsLink) //getDidDoc
+      } catch (error) {}
     }
   })
 
@@ -83,8 +82,6 @@
     list-style: none;
   }
 </style>
-
-
 
 {#if nodeId}
   {#await nodeId then nodeId}
