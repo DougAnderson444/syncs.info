@@ -21,11 +21,11 @@
   onMount(async () => {
     username.useLocalStorage()
 
-    $rootCidPem = $wallet.locker.getValue(ROOT_CID_PEM) // $rootCidPem is username + password + index=1
+    $rootCidPem = await $wallet.locker.getValue(ROOT_CID_PEM) // $rootCidPem is username + password + index=1
 
     if ($rootCidPem && $ipfsNode) {
       dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`)
-      console.log(`dnsLink`, dnsLink)
+
       try {
         resolvedDnsLink = await last($ipfsNode.name.resolve(dnsLink))
         didDoc = await $ipfsNode.dag.get(
@@ -34,20 +34,18 @@
             localResolve: true,
           },
         )
-        /* Need to publish to ipns first!
+        /* Need to publish to ipns first! Or this wont resolve to anything */
         try {
           console.log(
             `Resolving Data serviceEndpoint `,
             didDoc.value.service[0].serviceEndpoint,
           )
-          resolvedDataSvcLink = await last(
-            $ipfsNode.name.resolve(didDoc.value.service[0].serviceEndpoint),
-          )
+          resolvedDataSvcLink = await $ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint);
+          // resolvedDataSvcLink = await last($ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint));
           console.log('resolvedDataSvcLink', resolvedDataSvcLink)
         } catch (error) {
           console.log(error)
         }
-        */
       } catch (error) {
         console.log(error)
       }
@@ -71,7 +69,7 @@ Locker Contents
       Latest DID Doc:
       <b>
         <a
-          href="https://explore.ipld.io/#/explore/{resolvedDnsLink}"
+          href="https://explore.ipld.io/#/explore{resolvedDnsLink}"
           target="_blank">
           {resolvedDnsLink}
         </a>
@@ -88,10 +86,17 @@ Locker Contents
     <li>
       resolvedDataSvcLink:
       <a
-        href="https://explore.ipld.io/#/explore/{resolvedDataSvcLink}"
+        href="https://explore.ipld.io/#/explore{resolvedDataSvcLink}"
         target="_blank">
         {resolvedDataSvcLink}
       </a>
     </li>
+    <!--
+    <li>
+      Root CID pem:
+      <br />
+      {$rootCidPem}
+    </li>
+    -->
   </ul>
 {/if}
