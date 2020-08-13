@@ -15,7 +15,7 @@
 
 <span class="progress">
   {#if !awaiting}
-    <Icon class="material-icons" style="margin-right: 4px; color: grey;">
+    <Icon class="material-icons" style="margin-right: 4px; color: #ddd;">
       pending
     </Icon>
   {:else}
@@ -25,13 +25,13 @@
   {/if}
 </span>
 <slot name="before">
-  <span>Creating...</span>
+  <span></span>
 </slot>
 
 {#if awaiting}
   {#await awaiting then awaiting}
     <slot name="complete">
-      <span>Complete</span>
+      <span></span>
     </slot>
   {/await}
 {/if}

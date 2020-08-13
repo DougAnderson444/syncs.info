@@ -6,6 +6,22 @@
   import DataTest from './DataTest.svelte'
   //svelte stores
   import { ipfsNode } from '../../js/stores.js'
+  import { onMount } from 'svelte'
+  let mounted
+  let subdomain = false
+  onMount(async () => {
+    mounted = true
+    let isDev = window.location.hostname.includes('localhost')
+    let splitHost = window.location.hostname.split('.')
+
+    if (
+      (!isDev && splitHost.length === 3) ||
+      (isDev && splitHost.length === 2)
+    ) {
+      subdomain = splitHost[0]
+    }
+    //if (subdomain)
+  })
 </script>
 
 <style>
@@ -38,7 +54,7 @@
     margin: 1em;
     overflow: auto;
   }
-    .placeholder,
+  .placeholder,
   .replacement {
     position: absolute;
     top: 15px;
@@ -65,33 +81,35 @@
 </style>
 
 <div class="container">
-  <center>
-    <div class="holder">
-      {#if !$ipfsNode}
-        <h1>Loading...</h1>
-        <div class="placeholder" out:fly={{ y: -500, duration: 750 }}>
-          <figure class="below">
-            <img class="below" alt="Wait" src="wait-for-it.png" />
-            <figcaption>Loading the blockchain in your browser</figcaption>
-          </figure>
-        </div>
-      {:else}
-        <h1>Great success!</h1>
-        <div style="clear:all;" />
-        <div class="replacement" in:fly={{ y: 500, duration: 750 }}>
-          <figure>
-            <img alt="OK" src="ok.png" />
-            <figcaption>You're ready to rock!</figcaption>
-          </figure>
+  {#if mounted}
+    <center>
+      <div class="holder">
+        {#if subdomain && !$ipfsNode}
+          <h1>Loading...</h1>
+          <div class="placeholder" out:fly={{ y: -500, duration: 750 }}>
+            <figure class="below">
+              <img class="below" alt="Wait" src="wait-for-it.png" />
+              <figcaption>Loading the blockchain in your browser</figcaption>
+            </figure>
+          </div>
+        {:else if (!subdomain || $ipfsNode)}
+          <h1>Great success!</h1>
+          <div style="clear:all;" />
+          <div class="replacement" in:fly={{ y: 500, duration: 750 }}>
+            <figure>
+              <img alt="OK" src="ok.png" />
+              <figcaption>You're ready to rock!</figcaption>
+            </figure>
+          </div>
+        {/if}
+      </div>
+      <div style="clear:all;" />
+      {#if $ipfsNode}
+        <div>
+          <DataTest />
         </div>
       {/if}
-    </div>
-    <div style="clear:all;" />
-    {#if $ipfsNode}
-      <div>
-        <DataTest ipfs={$ipfsNode} />
-      </div>
-    {/if}
-  </center>
+    </center>
+  {/if}
 </div>
 <div style="clear:all;" />

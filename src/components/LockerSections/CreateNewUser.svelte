@@ -6,7 +6,7 @@
 
   // svelte stuff
   import { onMount } from 'svelte'
-  import { appSection, username, password, error } from '../../js/stores'
+  import { lockerSection, username, password, error } from '../../js/stores'
 
   // Svelte Material UI
   import Textfield from '@smui/textfield'
@@ -69,7 +69,7 @@
       // process creation
       // Create IPFS
       // Take PeerId privKey and encrypt with this password
-      $appSection = 'SetupDevice'
+      $lockerSection = 'SetupDevice'
     }
   }
 </script>
@@ -160,7 +160,7 @@
 
     <div>
       <Button
-        on:click={() => ($appSection = 'LogInOrCreateChoice')}
+        on:click={() => ($lockerSection = 'LogInOrCreateChoice')}
         variant="outlined">
         <Icon class="material-icons">backspace</Icon>
         <Label>Cancel</Label>

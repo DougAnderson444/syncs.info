@@ -1,33 +1,44 @@
 <script>
   import { onMount } from 'svelte'
-  import IpfsResolve from './IpfsResolve.svelte'
-  import { goPush } from '../js/ipnsUtils'
+  import IpfsResolve from '../IpfsResolve.svelte'
+  import { goPush } from '../../js/ipnsUtils'
   //svelte stores
-  import { wallet, rootCidPem } from '../js/stores.js'
+  import { wallet, rootCidPem, ipfsNode, username } from '../../js/stores.js'
+  import { DID_DOC_TLD } from '../../js/constants.js'
+  import { getDNSLinkFromName } from '../../js/utils.js'
 
-  export let ipfs
-  let cid, nodeId, dagTime, start
+  let cid, nodeId, dagTime, start, dnsLink, resolvedDnsLink, didDoc
   let i = 0
   let key, value
   let textContent = {}
 
   onMount(async () => {
-    nodeId = await ipfs.id() //works
+    nodeId = await $ipfsNode.id() //works
+
+    if ($rootCidPem) {
+      dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`)
+      console.log(`dnsLink`,dnsLink)
+      try {
+      resolvedDnsLink = $ipfsNode.resolve(dnsLink)        
+      didDoc = $ipfsNode.dag.get(resolvedDnsLink) //getDidDoc
+      } catch (error) {
+        
+      }
+    }
   })
 
   const handleSubmit = async () => {
     start = Date.now()
     textContent[i] = { key, value }
     i++
-    ipfs.dag.put(textContent).then((c) => {
-      cid = c
-      dagTime = Date.now() - start
-    })
+    await $ipfsNode.dag.put(textContent)
+    cid = c
+    dagTime = Date.now() - start
 
     // check if wallet.isLocked
     // on cid change, push it to go-IPFS Node
     // Push it to the goIpfs node network
-    if ($rootCidPem)
+    if ($rootCidPem) {
       goPush(
         $rootCidPem,
         process.env.SAPPER_APP_API_URL,
@@ -40,6 +51,7 @@
         .catch((error) => {
           console.log(error)
         })
+    }
   }
 
   const handleClick = async () => {
@@ -54,12 +66,12 @@
     ]
 
     try {
-      await ipfs.files.write(path, content, {
+      await $ipfsNode.files.write(path, content, {
         create: true,
         parents: true,
       })
       // write to disk
-      cid = await ipfs.files.flush('/')
+      cid = await $ipfsNode.files.flush('/')
       console.log(cid)
     } catch (err) {
       console.log(err)
@@ -73,7 +85,8 @@
   }
 </style>
 
-<br />
+
+
 {#if nodeId}
   {#await nodeId then nodeId}
     <!--    NodeId: {nodeId} <br /> -->

@@ -1,13 +1,22 @@
 <script>
+  
+  
   import SaveButton from './SaveButton.svelte'
   import { getDNSLinkFromName } from '../js/utils.js'
   import { onMount } from 'svelte'
+  import { DID_DOC_TLD } from '../js/constants.js'
+  
+  import { fly } from 'svelte/transition'
+  import { quintOut } from 'svelte/easing'
 
   //svelte stores
-  import { appSection, username } from '../js/stores.js'
+  import { appSection, username, dnsLink } from '../js/stores.js'
 
   //sapper stores
-  import { stores } from '@sapper/app'
+  import { goto, stores, prefetch } from '@sapper/app'
+  
+  prefetch("/locker")
+
   const { page } = stores()
 
   var regex = /(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i
@@ -17,11 +26,7 @@
   export let saveState = ''
   let subdomain
 
-  onMount(() => {
-    var parts = window.location.hostname.split('.')
-    var subdomain1 = parts.shift()
-    var upperleveldomain = parts.join('.')
-
+  onMount(async () => {
     // "Saved" if there is a DNSLink pointing to an IPNS hash
     // If there's no DNSLINK, show this bar
     // check DNS link (or fauna db)
@@ -33,18 +38,14 @@
       : null
     //chop off the tld
 
-    if (!subdomain) status = 'hidden'
-    else {
+    if (!!subdomain) {
       subdomain = subdomain.replace(`.`, '') //lose the dot
-      ;(async () => {
-        let str = $page.host.includes('.localhost')
-          ? subdomain + '.syncs.info'
-          : $page.host
-        console.log(`Getting <${str}> from HTTPS-over-DNS`)
-        let link = await getDNSLinkFromName(str)
-        if (link) status = 'hidden'
-        else status = 'save-bar-container'
-      })()
+      let str = $page.host.includes('.localhost')
+        ? subdomain + `.${DID_DOC_TLD}`
+        : $page.host
+      console.log(`Getting <${str}> from HTTPS-over-DNS`)
+      $dnsLink = await getDNSLinkFromName(str)
+      if (!$dnsLink) status = 'save-bar-container'
     }
   })
 
@@ -52,15 +53,8 @@
     // disable the save button, make bar grey
     saveState = 'SAVING'
     $username = subdomain
-    // show the password page
-    $appSection = 'CreateNewUser'
-
-    // prompt for a password
-    // create identity
-    // publish to IPNS
-    // show IPNS link
-    // and show backup phrases/link device?
-    // show some basic sync component, widget, sssssss?
+    await goto('/locker');
+    //$appSection = 'CreateNewUser'
   }
 </script>
 
@@ -98,13 +92,15 @@
   }
 </style>
 
-<!-- Put a banner here: Temporary page! Wanna go steady? Secure this page  -->
-
-<div class={status}>
-  <p class="last-saved" id="save-bar">Temporary page. Wanna go steady? Secure this page:</p>
+{#if status != 'hidden'}
+<div class={status} transition:fly={{delay: 100, y: 0, duration: 2500, opacity: 0.1, easing: quintOut }}>
+  <p class="last-saved" id="save-bar">
+    Temporary page. Wanna go steady? Secure this page:
+  </p>
   <div class="edit-link-and-save">
     <div>
       <SaveButton on:click={savePage} {saveState} />
     </div>
   </div>
 </div>
+{/if}

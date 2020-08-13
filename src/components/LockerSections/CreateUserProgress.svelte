@@ -1,14 +1,14 @@
 <script>
   import { Icon } from '@smui/common'
-  import Spinner from './Display/Spinner.svelte'
+  import Spinner from '../AppSections/Display/Spinner.svelte'
   import * as pro from '../../js/process'
-  import { DID_DOC_TLD, DATA_FEED_IPNS_PEM } from '../../js/constants.js'
-  import ProgressStatus from './Display/ProgressStatus.svelte'
+  import { DID_DOC_TLD, ROOT_CID_PEM } from '../../js/constants.js'
+  import ProgressStatus from '../AppSections/Display/ProgressStatus.svelte'
   const last = require('it-last')
 
   //svelte stores
   import {
-    appSection,
+    lockerSection,
     deviceType,
     deviceName,
     username,
@@ -17,20 +17,24 @@
     wallet,
     rootCidPem,
     dataPeerId,
+    dnsLink,
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
-  let did, dnsLink, pageSaved, serviceAdded, identity, isLoaded
+  let did, pageSaved, serviceAdded, identity, isLoaded
+  const LOCK_TYPE = 'passphrase'
 
   onMount(async () => {
     // send the data to the service worker to create the account in the background
-    console.log(`Step 1. Create  wallet`)
-    $wallet = await pro.createNewWallet(
-      $ipfsNode,
-      process.env.SAPPER_APP_API_URL,
-      process.env.SAPPER_APP_WS_URL,
-    )
-    console.log(`Step 2. Create Identity (DID)`)
+    console.log(`Step 1. Enable  wallet`)
+    $wallet.locker
+      .getLock(LOCK_TYPE)
+      .enable($password)
+      .catch((err) => {
+        console.log(err)
+      })
+
+    console.log(`Step 2. Create Identity (DID)`) //edit version
     //identity = await
     pro
       .createNewIdentity(
@@ -42,10 +46,9 @@
       )
       .then(async (identity) => {
         did = await identity.getDid()
-        console.log(`Did: ${did}`)
         let backup = identity.backup.getData()
-        console.log(`backup: `, backup)
 
+        /*
         console.log('Serialized:', {
           addedAt: identity.getAddedAt(),
           id: identity.getId(),
@@ -53,10 +56,10 @@
           devices: identity.devices.list(),
           backup,
           profile: identity.profile.getDetails(),
-        })
+        }) */
 
         console.log(`Step 4: Create dnslink=/ipns/DIDDoc`)
-        dnsLink = await pro.recordDNSLink(
+        $dnsLink = await pro.recordDNSLink(
           $username,
           did.replace('did:ipid:', '/ipns/'),
           DID_DOC_TLD,
@@ -77,10 +80,12 @@
         $rootCidPem = masterKeyPair.privateKey
         $dataPeerId = await pro.pemToPeerId($rootCidPem)
 
-        $wallet.locker.store(DATA_FEED_IPNS_PEM, $rootCidPem)
+        $wallet.locker.store(ROOT_CID_PEM, $rootCidPem)
 
         console.log(`local resolve:`, did.match(/did:(\w+):(\w+).*/)[2])
-        let r = await $ipfsNode.name.resolve(did.match(/did:(\w+):(\w+).*/)[2])
+        let r = await last(
+          $ipfsNode.name.resolve(did.match(/did:(\w+):(\w+).*/)[2]),
+        )
         console.log(r)
 
         serviceAdded = await $wallet.identities.addService(
@@ -92,7 +97,7 @@
             serviceEndpoint: `/ipns/${$dataPeerId.toB58String()}`,
           },
         )
-        $appSection = 'DataTest'
+        $lockerSection = 'LockerContents'
       })
   })
 </script>
@@ -114,7 +119,7 @@ Creating details:
   <span slot="complete">Digital Identity created.</span>
 </ProgressStatus>
 
-<ProgressStatus bind:awaiting={dnsLink}>
+<ProgressStatus bind:awaiting={$dnsLink}>
   <span slot="before">Creating your DNS Link...</span>
   <span slot="complete">DNS Link created.</span>
 </ProgressStatus>

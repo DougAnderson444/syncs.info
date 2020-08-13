@@ -1,12 +1,12 @@
 import { timestamp, files, shell, routes } from "@sapper/service-worker";
 const { createProxyServer } = require("ipfs-postmsg-proxy");
-const node = require("./js/ipfsNode");
+//const node = require("./js/ipfsNode");
 
 //import { parseCreateUserMsg } from "./js/bridgeFunctions.js";
 //import * as pro from "./js/process";
 //import { startPings } from "./js/pubsubApplet";
 
-let ipfsNode;
+//let ipfsNode;
 
 const ASSETS = `cache${timestamp}`;
 
@@ -57,7 +57,9 @@ self.addEventListener("message", async (event) => {
   try {
     data = JSON.parse(event.data);
   } catch (e) {}
-  //console.log(data);
+  console.log(data);
+
+  /*
   if (data) {
     switch (data.func) {
       case "id":
@@ -102,6 +104,7 @@ self.addEventListener("message", async (event) => {
         break;
     }
   }
+  */
 });
 /*
 self.addEventListener("fetch", (event) => {
@@ -156,7 +159,8 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-*/
+
+
 connectProxy()
 function connectProxy() {
   createProxyServer(() => ipfsNode, {
@@ -170,3 +174,4 @@ function connectProxy() {
     },
   });
 }
+*/

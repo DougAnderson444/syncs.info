@@ -21,7 +21,7 @@
 
   //svelte stores
   import {
-    appSection,
+    lockerSection,
     deviceType,
     deviceName,
     ipfsNode,
@@ -37,7 +37,7 @@
   $: $ipfsNode ? (disabled = false) : (disabled = true)
 
   const handleButtonClick = async () => {
-    $appSection = 'CreateUserProgress'
+    $lockerSection = 'CreateUserProgress'
   }
 </script>
 

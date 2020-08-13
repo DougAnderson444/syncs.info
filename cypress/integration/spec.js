@@ -22,6 +22,12 @@ describe("Navigation", () => {
     cy.get("nav a").contains("blog").click();
 	cy.url().should("include", "/blog");
   });
+  
+  it("navigates to /locker", () => {
+    cy.get("nav a").contains("blog").click();
+	cy.url().should("include", "/locker");
+  });
+
 });
   
 describe("Save bar", () => {

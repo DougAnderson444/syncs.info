@@ -2,11 +2,14 @@
   export let segment
   import CreateSubdomain from '../components/CreateSubdomain'
   import SaveBar from '../components/SaveBar.svelte'
+  import { dnsLink, publishingOn } from '../js/stores.js'
+  import Switch from '@smui/switch'
+  import FormField from '@smui/form-field'
 </script>
 
 <style>
   nav {
-    border-bottom: 1px solid rgba(84, 84, 0, 0.1);
+    border-bottom: 1px solid rgba(84, 84, 0, 0.3);
     font-weight: 300;
     padding: 0 1em;
 
@@ -90,9 +93,31 @@
           blog
         </a>
       </li>
+      {#if $dnsLink}
+        <li>
+          <a
+            href="locker"
+            aria-current={segment === 'locker' ? 'page' : undefined}>
+            Your Syncs
+          </a>
+        </li>
+      {/if}
     </ul>
   </div>
-  <div class="box box2" />
+  <div class="box box2">
+    <!-- only show the publishing option if this page has been saved
+    {#if $dnsLink}
+      <span>
+        <FormField>
+          <Switch bind:checked={$publishingOn} />
+          <span slot="label">
+            {#if $publishingOn}Publishing{:else}Not Publishing{/if}
+          </span>
+        </FormField>
+      </span>
+    {/if}
+    -->
+  </div>
   <div class="box box3">
     <ul>
       <li>

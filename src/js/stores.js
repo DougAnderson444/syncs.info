@@ -1,18 +1,39 @@
 import { writable, derived, readable } from "svelte/store";
 import { DATA_FOLDER_KEY_NAME } from "./constants";
 
+//  in your App.svelte just invoke the useLocalStorage function to enable the persistent state.
+//  import { count } from 'store.js'; // in Component.svelte
+//  count.useLocalStorage();
+const createWritableStore = (key, startValue) => {
+  const { subscribe, set } = writable(startValue);
+  
+  return {
+    subscribe,
+    set,
+    useLocalStorage: () => {
+      const json = window.localStorage.getItem(key);
+      if (json) {
+        set(JSON.parse(json));
+      }
+      
+      subscribe(current => {
+        window.localStorage.setItem(key, JSON.stringify(current));
+      });
+    }
+  };
+}
+
 export const ipfsNode = writable(0);
 export const nodeId = writable(0);
-export const nodeAgentVersion = writable(0);
-export const nodeProtocolVersion = writable(0);
 export const rootHash = writable(0);
 export const dataRootHash = writable(0);
 
 export const appSection = writable(0);
-export const walletSection = writable(0);
-export const username = writable("");
+export const lockerSection = writable(0);
+
+export const username = createWritableStore('username', "");
 export const password = writable("");
-export const pemEncrypted = writable(0);
+
 export const deviceName = writable(0);
 export const deviceType = writable(0);
 export const error = writable(0);
@@ -21,6 +42,9 @@ export const dnsSuccess = writable(0);
 export const wallet = writable(0);
 export const rootCidPem = writable(0);
 export const dataPeerId = writable(0);
+export const dnsLink = writable(0);
+
+export const publishingOn = writable(0);
 
 const pub = async([$dataRootHash]) => {
   console.log(`Publishing $dataRootHash: `, $dataRootHash);

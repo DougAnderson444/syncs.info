@@ -7,7 +7,6 @@ import { DID_DOC_TLD } from "./constants.js";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const LOCK_TYPE = "passphrase";
-const DATA_FEED_IPNS_PEM = "DATA_FEED_IPNS_PEM";
 
 export const recordDNSLink = async (username, ipnsHash, tld) => {
   try {
@@ -72,7 +71,7 @@ export const createNewIdentity = async (
     password
   );
 
-  console.log(`Step 3: Create identity`);
+  console.log(`Step 3: Create identity: ${username}`);
   return await wallet.identities.create("ipid", {
     profileDetails: {
       "@context": "https://schema.org",
