@@ -1,11 +1,11 @@
 <script>
-  export let breadcrumbs = []; // keys that lead back to the top
-  export let key;
-  export let val;
-  export let expanded = false;
+  export let breadcrumbs = [] // keys that lead back to the top
+  export let key
+  export let val
+  export let expanded = false
 
   function toggle() {
-    expanded = !expanded;
+    expanded = !expanded
   }
 </script>
 
@@ -17,7 +17,7 @@
   }
 
   .expanded:before {
-    content: "\f07c";
+    content: '\f07c';
     font: normal normal normal 1.5em/1 FontAwesome;
     color: #ccc;
     padding-right: 0.1em;
@@ -35,22 +35,22 @@
     padding: 0.2em 0;
     margin: 0.15em 1em;
   }
+  div {
+    text-align: left;
+  }
 </style>
 
-<span class:expanded on:click={toggle}>
-  {key}
-</span>
-
-{#if expanded}
-  <ul>
-    {#each [...Object.entries(val).sort()] as [key, val]}
-      <li> 
-        {#if typeof val === 'object'}
-          <svelte:self {key} {val} breadcrumbs={breadcrumbs.concat(key)} />
-        {:else}
-          {key}: {val}
-        {/if}
-      </li>
-    {/each}
-  </ul>
-{/if}
+<div>
+  <span class:expanded on:click={toggle}>{key}</span>
+  {#if expanded}
+    <ul>
+      {#each [...Object.entries(val).sort()] as [key, val]}
+        <li>
+          {#if typeof val === 'object'}
+            <svelte:self {key} {val} breadcrumbs={breadcrumbs.concat(key)} />
+          {:else}{key != 'value' ? key : ''}: {val}{/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</div>

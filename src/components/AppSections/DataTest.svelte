@@ -3,45 +3,95 @@
   import { onMount } from 'svelte'
   import IpfsResolve from '../IpfsResolve.svelte'
   import { goPush } from '../../js/ipnsUtils'
+  import { getData } from '../../js/utils'
+  import { importKey } from '../../js/ipfsUtils'
+  import { getIPLDObj } from '../../js/ipfsNode'
+  import ObjectComp from '../Utility/ObjectComp.svelte'
+
   //svelte stores
-  import { wallet, rootCidPem, ipfsNode, username } from '../../js/stores.js'
-  import { DID_DOC_TLD } from '../../js/constants.js'
+  import {
+    wallet,
+    rootCid,
+    rootCidPem,
+    ipfsNode,
+    username,
+    serviceEndpoint,
+    dnsLink,
+  } from '../../js/stores.js'
+  import { DID_DOC_TLD, ROOT_CID_PEM } from '../../js/constants.js'
   import { getDNSLinkFromName } from '../../js/utils.js'
 
-  let cid, nodeId, dagTime, start, dnsLink, resolvedDnsLink, didDoc
-  let i = 0
-  let key, value
-  let textContent = {}
+  let nodeId, dagTime, start, resolvedDnsLink, didDoc, subdomain
+  let key, val
+  let textContent = []
+
+  let isDev = window.location.hostname.includes('localhost')
+  let splitHost = window.location.hostname.split('.')
+
+  if ((!isDev && splitHost.length === 3) || (isDev && splitHost.length === 2)) {
+    subdomain = splitHost[0]
+  }
 
   onMount(async () => {
-    nodeId = await $ipfsNode.id() //works
+    rootCid.useLocalStorage()
+    console.log('$rootCid', $rootCid)
 
-    if ($rootCidPem && $ipfsNode) {
-      dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`)
-      console.log(`dnsLink`, dnsLink)
-      try {
-        resolvedDnsLink = await last($ipfsNode.resolve(`/ipns/${dnsLink}`))
-        didDoc = await $ipfsNode.dag.get(resolvedDnsLink) //getDidDoc
-      } catch (error) {}
-    }
+    nodeId = await $ipfsNode.id() //works
+    if ($dnsLink)
+      getData($ipfsNode, subdomain)
+        .then((res) => {
+          $rootCid = res.cid.toBaseEncodedString()
+          textContent = res.data
+        })
+        .catch((err) => console.log(err))
   })
 
+  $: {
+    ;(async () => {
+      if ($rootCid) textContent = await getIPLDObj($rootCid)
+    })()
+  }
+
   const handleSubmit = async () => {
+    let value = val
     start = Date.now()
-    textContent[i] = { key, value }
-    i++
-    cid = await $ipfsNode.dag.put(textContent)
+    console.log('$rootCid', $rootCid)
+    let edits = {}
+    edits[key] = await $ipfsNode.dag.put({ value })
+    if ($rootCid) {
+      let previous = await $ipfsNode.dag.get($rootCid, { path: '/' })
+      $rootCid = (
+        await $ipfsNode.dag.put({ ...previous.value, ...edits })
+      ).toBaseEncodedString()
+    } else {
+      $rootCid = (await $ipfsNode.dag.put({ ...edits })).toBaseEncodedString()
+    }
+    console.log(`$rootCid: `, $rootCid)
+    textContent = await getIPLDObj($rootCid)
+    console.log('textContent', textContent)
     dagTime = Date.now() - start
+    console.log(dagTime + 'ms')
 
     // check if wallet.isLocked
     // on cid change, push it to go-IPFS Node
     // Push it to the goIpfs node network
     if ($rootCidPem) {
+      console.log('$rootCidPem', $rootCidPem)
+      await importKey($ipfsNode, ROOT_CID_PEM, $rootCidPem)
+      $ipfsNode.name
+        .publish(`/ipfs/${$rootCid}`, {
+          resolve: false,
+          key: ROOT_CID_PEM,
+        })
+        .then((results) => {
+          console.log(`Local Publish`, results)
+        })
+
       goPush(
         $rootCidPem,
         process.env.SAPPER_APP_API_URL,
         process.env.SAPPER_APP_WS_URL,
-        cid,
+        $rootCid,
       )
         .then(() => {
           console.log(`published to go ${Date.now() - start}ms`)
@@ -69,8 +119,7 @@
         parents: true,
       })
       // write to disk
-      cid = await $ipfsNode.files.flush('/')
-      console.log(cid)
+      $rootCid = await $ipfsNode.files.flush('/')
     } catch (err) {
       console.log(err)
     }
@@ -80,30 +129,34 @@
 <style>
   ul {
     list-style: none;
+    text-align: left
   }
 </style>
 
 {#if nodeId}
   {#await nodeId then nodeId}
     <!--    NodeId: {nodeId} <br /> -->
-    <p>Save some text to IPFS:</p>
-    <form on:submit|preventDefault={handleSubmit}>
-      <input placeholder="My favorite color" bind:value={key} name="key" />
-      <input placeholder="Blue" bind:value name="value" />
-      <input type="submit" value="Save" />
-    </form>
-    {#if textContent && cid}
+    {#if $rootCidPem || !$dnsLink}
+      <p>Save some text to IPFS:</p>
+      <form on:submit|preventDefault={handleSubmit}>
+        <input placeholder="My favorite color" bind:value={key} name="key" />
+        <input placeholder="Blue" bind:value={val} name="value" />
+        <input type="submit" value="Save" />
+      </form>
+    {/if}
+    {#if textContent && $rootCid}
       <br />
-      {#if cid}
+      {#if $rootCid}
         IPLD Root Hash:
-        <a href="https://explore.ipld.io/#/explore/{cid}" target="_blank">
-          {cid}
+        <a href="https://explore.ipld.io/#/explore/{$rootCid}" target="_blank">
+          {$rootCid}
         </a>
         ({dagTime})
       {/if}
       <ul>
-        {#each [...Object.entries(textContent)] as [k, text]}
-          <li>{k}. {text.key}: {text.value}</li>
+        <!--ObjectComp key="Contents" val={textContent} expanded="true" /-->
+        {#each [...Object.entries(textContent)] as [k, v]}
+          <li>{k}: {v.value}</li>
         {/each}
       </ul>
     {/if}

@@ -40,11 +40,13 @@ export const error = writable(0);
 export const dnsSuccess = writable(0);
 
 export const wallet = writable(0);
+export const rootCid = createWritableStore('rootCid', 0);
 export const rootCidPem = writable(0);
 export const dataPeerId = writable(0);
 export const dnsLink = writable(0);
 
 export const publishingOn = writable(0);
+export const serviceEndpoint = createWritableStore('serviceEndpoint', "");
 
 const pub = async([$dataRootHash]) => {
   console.log(`Publishing $dataRootHash: `, $dataRootHash);
@@ -86,26 +88,3 @@ export const start = writable(new Date());
 export const elapsed = derived([time, start], ([$time, $start]) =>
   Math.max(Math.round(($time - $start) / 250), 2)
 );
-
-const removeKey = async (node, keyName) => {
-  const keysList = await node.key.list();
-  const hasKey = keysList.some(({ name }) => name === keyName);
-
-  if (!hasKey) {
-    return;
-  }
-
-  await node.key.rm(keyName);
-};
-
-const importKey = async (node, keyName, pem, password) => {
-  await removeKey(node, keyName);
-
-  await node.key.import(keyName, pem, password);
-};
-
-const generateKeyName = () => `js-ipid-${generateRandomString()}`;
-
-const generateRandomString = () => {
-  Math.random().toString(36).substring(2);
-};

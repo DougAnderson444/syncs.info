@@ -31,21 +31,19 @@
     ) {
       if ($wallet.locker.isPristine()) {
         console.log(`wallet isPristine`)
-        $lockerSection = 'CreateNewUser'
+        if (!$dnsLink) $lockerSection = 'CreateNewUser'
+        else $lockerSection = 'LockScreen'
       }
     }
   }
 
-  /*
   const handleLockedChanged = () => {
-    console.log(`Lock changed ${new Date(Date.now())}`)
-    if ($wallet.locker.isLocked()) $lockerSection = 'LockScreen' // lock and unlock signal
-    $wallet = $wallet
-  } */
+    $wallet = $wallet // triggers reactivity that depends on a refreshed $wallet, like Timer
+  }
 
+  // Anything with $: in front means it's reactive (built in to svelte)
   $: if ($wallet && $wallet.locker.isLocked()) $lockerSection = 'LockScreen'
-
-  //$: $wallet ? $wallet.locker.onLockedChange(handleLockedChanged) : null // lock and unlock signal
+  $: $wallet ? $wallet.locker.onLockedChange(handleLockedChanged) : null // lock and unlock signal
   $: active = lockerSections[$lockerSection]
 
   onMount(async () => {})

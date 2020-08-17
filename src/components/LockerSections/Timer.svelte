@@ -39,7 +39,7 @@
       ${$wallet.locker.isPristine() ? 'Pristine' : 'Not Pristine'}
       `
   }
-   
+  
   $: if ($wallet && !$wallet.locker.isLocked()) getRemainingTime()
 </script>
 

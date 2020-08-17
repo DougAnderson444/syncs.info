@@ -15,3 +15,26 @@ export const saveToIPFS = async (node, path, content) => {
 
   return cid;
 };
+
+const removeKey = async (node, keyName) => {
+  const keysList = await node.key.list();
+  const hasKey = keysList.some(({ name }) => name === keyName);
+
+  if (!hasKey) {
+    return;
+  }
+
+  await node.key.rm(keyName);
+};
+
+export const importKey = async (node, keyName, pem, password) => {
+  await removeKey(node, keyName);
+
+  await node.key.import(keyName, pem, password);
+};
+
+const generateKeyName = () => `js-ipid-${generateRandomString()}`;
+
+const generateRandomString = () => {
+  Math.random().toString(36).substring(2);
+};

@@ -1,6 +1,6 @@
 <script>
   //svelte stores
-  import { wallet, lockerSection } from '../../js/stores.js'
+  import { wallet, lockerSection, dnsLink } from '../../js/stores.js'
 
   // Svelte Material UI
   import Textfield from '@smui/textfield'
@@ -34,7 +34,8 @@
 
   const handleInputKeyPress = (event) => {
     if (event.charCode === 13) {
-      unlock(LOCK_TYPE, value)
+      if (!$wallet.locker.isPristine()) unlock(LOCK_TYPE, value)
+      else if ($dnsLink) console.log(`compare with DID Doc then get from ipld network`) // TODO
     }
   }
 </script>

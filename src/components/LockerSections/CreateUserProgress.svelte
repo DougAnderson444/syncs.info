@@ -18,6 +18,7 @@
     rootCidPem,
     dataPeerId,
     dnsLink,
+    serviceEndpoint
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
@@ -48,16 +49,6 @@
         did = await identity.getDid()
         let backup = identity.backup.getData()
 
-        /*
-        console.log('Serialized:', {
-          addedAt: identity.getAddedAt(),
-          id: identity.getId(),
-          did,
-          devices: identity.devices.list(),
-          backup,
-          profile: identity.profile.getDetails(),
-        }) */
-
         console.log(`Step 4: Create dnslink=/ipns/DIDDoc`)
         $dnsLink = await pro.recordDNSLink(
           $username,
@@ -82,12 +73,7 @@
 
         $wallet.locker.store(ROOT_CID_PEM, $rootCidPem)
 
-        console.log(`local resolve:`, did.match(/did:(\w+):(\w+).*/)[2])
-        let r = await last(
-          $ipfsNode.name.resolve(did.match(/did:(\w+):(\w+).*/)[2]),
-        )
-        console.log(r)
-
+        await backup
         serviceAdded = await $wallet.identities.addService(
           'ipid',
           { privateKey: backup.privateKey },
@@ -97,6 +83,7 @@
             serviceEndpoint: `/ipns/${$dataPeerId.toB58String()}`,
           },
         )
+        $serviceEndpoint = `/ipns/${$dataPeerId.toB58String()}`
         $lockerSection = 'LockerContents'
       })
   })

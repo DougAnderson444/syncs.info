@@ -24,6 +24,18 @@
   let checkedTerms
   let confirmValue = ''
 
+  if(!$username){
+    let isDev = window.location.hostname.includes('localhost')
+    let splitHost = window.location.hostname.split('.')
+
+    if (
+      (!isDev && splitHost.length === 3) ||
+      (isDev && splitHost.length === 2)
+    ) {
+      $username = splitHost[0]
+    } 
+  }
+  
   const LOCK_TYPE = 'passphrase'
 
   async function validate(passphrase) {

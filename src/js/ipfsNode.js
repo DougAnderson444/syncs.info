@@ -1,10 +1,10 @@
-// IPFS node for the service worker
+// IPFS ipfs for the service worker
 import IPFS from "ipfs";
 
-var node, nodeId;
+var ipfs, nodeId;
 
 export const get = async (username) => {
-  if (!node) {
+  if (!ipfs) {
     let repo = "ipfs-"+ username;
     
     // pass must be at least 20 char long
@@ -37,24 +37,41 @@ export const get = async (username) => {
       },
     };
 
-    node = await IPFS.create(options);
+    ipfs = await IPFS.create(options);
 
-    const { agentVersion, id } = await node.id();
+    const { agentVersion, id } = await ipfs.id();
     nodeId = id;
 
-    //console.log(`New node ${id}`);
+    //console.log(`New ipfs ${id}`);
   } else {
-    //console.log(`Existing node ${nodeId}`);
+    //console.log(`Existing ipfs ${nodeId}`);
   }
 
   let multiaddr =
     "/dns4/super.peerpiper.io/tcp/4033/wss/ipfs/QmPFeUqE4x17gy6cV3bb9yjfiZvwPAtmwmt4zZqgnfEoz5";
   try {
-    await node.swarm.connect(multiaddr);
+    await ipfs.swarm.connect(multiaddr);
     console.log(`Connected to ${multiaddr}`);
   } catch (e) {
     console.log(e);
   }
 
-  return node;
+  return ipfs;
 };
+
+export const getIPLDObj = async (cid) => {
+  cid = new IPFS.CID(cid)
+  let cidObj = await ipfs.dag.get(cid, { path: '/' })
+  return Object.fromEntries(await Promise.all(Object.entries(cidObj.value).map(async ([k, v]) => {
+    if (IPFS.CID.isCID(v)) {
+      let vals = (await ipfs.dag.get(v, { path: '/' }))
+      v = vals.value
+    }
+    return [k, v]
+  })));
+}
+
+export const toCID = async(obj)=>{
+
+  return (new IPFS.CID(obj))
+}

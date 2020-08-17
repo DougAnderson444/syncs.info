@@ -1,10 +1,11 @@
 <script>
   import last from 'it-last' // gets last value of async iterator
   import { onMount } from 'svelte'
-  import { wallet, rootCidPem, ipfsNode, username } from '../../js/stores.js'
+  import { wallet, rootCidPem, ipfsNode, username, serviceEndpoint } from '../../js/stores.js'
   import { getDNSLinkFromName } from '../../js/utils.js'
   import { DID_DOC_TLD, ROOT_CID_PEM } from '../../js/constants.js'
   import ObjectComp from '../Utility/ObjectComp.svelte'
+  import DataTest from '../AppSections/DataTest.svelte'
 
   let cid,
     nodeId,
@@ -20,7 +21,8 @@
 
   onMount(async () => {
     username.useLocalStorage()
-
+    serviceEndpoint.useLocalStorage()
+    
     $rootCidPem = await $wallet.locker.getValue(ROOT_CID_PEM) // $rootCidPem is username + password + index=1
 
     if ($rootCidPem && $ipfsNode) {
@@ -28,24 +30,14 @@
 
       try {
         resolvedDnsLink = await last($ipfsNode.name.resolve(dnsLink))
-        didDoc = await $ipfsNode.dag.get(
-          resolvedDnsLink.replace('/ipfs/', ''), // new CID(resolvedDnsLink)
-          {
-            localResolve: true,
-          },
-        )
+        console.log('resolvedDnsLink', resolvedDnsLink)
+        didDoc = await $ipfsNode.dag.get(resolvedDnsLink.replace('/ipfs/', ''))
+        console.log('didDoc', didDoc)
         /* Need to publish to ipns first! Or this wont resolve to anything */
-        try {
-          console.log(
-            `Resolving Data serviceEndpoint `,
+        if (didDoc.value)
+          resolvedDataSvcLink = await $ipfsNode.resolve(
             didDoc.value.service[0].serviceEndpoint,
           )
-          resolvedDataSvcLink = await $ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint);
-          // resolvedDataSvcLink = await last($ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint));
-          console.log('resolvedDataSvcLink', resolvedDataSvcLink)
-        } catch (error) {
-          console.log(error)
-        }
       } catch (error) {
         console.log(error)
       }
@@ -65,16 +57,18 @@ Locker Contents
       DNSLink (dnslink=):
       <b>{dnsLink}</b>
     </li>
-    <li>
-      Latest DID Doc:
-      <b>
-        <a
-          href="https://explore.ipld.io/#/explore{resolvedDnsLink}"
-          target="_blank">
-          {resolvedDnsLink}
-        </a>
-      </b>
-    </li>
+    {#if resolvedDnsLink}
+      <li>
+        Latest DID Doc:
+        <b>
+          <a
+            href="https://explore.ipld.io/#/explore{resolvedDnsLink}"
+            target="_blank">
+            {resolvedDnsLink}
+          </a>
+        </b>
+      </li>
+    {/if}
     {#if didDoc}
       <li>
         DiD Doc:
@@ -83,14 +77,17 @@ Locker Contents
       </li>
       <li>DataHub:{didDoc.value.service[0].serviceEndpoint}</li>
     {/if}
-    <li>
-      resolvedDataSvcLink:
-      <a
-        href="https://explore.ipld.io/#/explore{resolvedDataSvcLink}"
-        target="_blank">
-        {resolvedDataSvcLink}
-      </a>
-    </li>
+    {#if resolvedDataSvcLink}
+      <li>
+        DataHub Data:
+        <a
+          href="https://explore.ipld.io/#/explore{resolvedDataSvcLink}"
+          target="_blank">
+          {resolvedDataSvcLink}
+        </a>
+      </li>
+    {/if}
+
     <!--
     <li>
       Root CID pem:
@@ -100,3 +97,4 @@ Locker Contents
     -->
   </ul>
 {/if}
+<DataTest />
