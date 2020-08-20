@@ -15,7 +15,13 @@
     font-weight: bold;
     cursor: pointer;
   }
-
+  .menuclosed:before {
+    content: '\f07b';
+    font: normal normal normal 1.5em/1 FontAwesome;
+    color: #ccc;
+    padding-right: 0.1em;
+    margin-right: 0.1em;
+  }
   .expanded:before {
     content: '\f07c';
     font: normal normal normal 1.5em/1 FontAwesome;
@@ -41,6 +47,7 @@
 </style>
 
 <div>
+  <span class:menuclosed={!expanded} on:click={toggle} />
   <span class:expanded on:click={toggle}>{key}</span>
   {#if expanded}
     <ul>

@@ -1,4 +1,5 @@
 <script>
+  import { lockerSections } from './index.js'
   import { Icon } from '@smui/common'
   import Spinner from '../AppSections/Display/Spinner.svelte'
   import * as pro from '../../js/process'
@@ -18,14 +19,24 @@
     rootCidPem,
     dataPeerId,
     dnsLink,
-    serviceEndpoint
+    serviceEndpoint,
+    backgroundComponents,
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
+
+  $backgroundComponents = [
+    ...$backgroundComponents,
+    lockerSections['CreateIdentity'],
+    lockerSections['CreateDNSLink'],
+    lockerSections['CreateDatabaseEntry'],
+    lockerSections['CreateDataServiceEntry'],
+  ]
 
   let did, pageSaved, serviceAdded, identity, isLoaded
   const LOCK_TYPE = 'passphrase'
 
   onMount(async () => {
+    /*
     // send the data to the service worker to create the account in the background
     console.log(`Step 1. Enable  wallet`)
     $wallet.locker
@@ -84,44 +95,19 @@
           },
         )
         $serviceEndpoint = `/ipns/${$dataPeerId.toB58String()}`
-        $lockerSection = 'LockerContents'
+        //$lockerSection = 'LockerContents'
       })
+      */
   })
 </script>
 
 <style>
-
 </style>
 
 Creating details:
 <br />
-
-<ProgressStatus bind:awaiting={$wallet}>
-  <span slot="before">Creating your data wallet in the browser...</span>
-  <span slot="complete">Wallet created.</span>
-</ProgressStatus>
-
-<ProgressStatus bind:awaiting={did}>
-  <span slot="before">Creating your Digital Identity...</span>
-  <span slot="complete">Digital Identity created.</span>
-</ProgressStatus>
-
-<ProgressStatus bind:awaiting={$dnsLink}>
-  <span slot="before">Creating your DNS Link...</span>
-  <span slot="complete">DNS Link created.</span>
-</ProgressStatus>
-
-<ProgressStatus bind:awaiting={pageSaved}>
-  <span slot="before">Saving your page...</span>
-  <span slot="complete">Page saved.</span>
-</ProgressStatus>
-
-<ProgressStatus bind:awaiting={$dataPeerId}>
-  <span slot="before">Creating your data id...</span>
-  <span slot="complete">Data ID created. /ipns/{$dataPeerId}</span>
-</ProgressStatus>
-
-<ProgressStatus bind:awaiting={serviceAdded}>
-  <span slot="before">Linking Data ID to digital identity...</span>
-  <span slot="complete">Linked.</span>
-</ProgressStatus>
+{#if $backgroundComponents && $backgroundComponents.length > 0}
+  {#each $backgroundComponents as background}
+    <svelte:component this={background.component} />
+  {/each}
+{/if}

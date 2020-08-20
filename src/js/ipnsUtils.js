@@ -62,7 +62,6 @@ async function wsConnect(addr) {
   }
 
   await ipfsBrowser.swarm.connect(String(addr));
-  console.log(`did-ipid connected to ${addr}`);
 }
 
 // Utility fn, Wait until a peer subscribes a topic
@@ -89,9 +88,9 @@ const waitForNotificationOfSubscription = (daemon, topic, peerId) =>
   }, retryOptions);
 
 // Main routine, publish to IPNS once set up is complete
-async function publish(cid) {
-  if (!cid) {
-    throw new Error("Missing cid to publish");
+async function publish(cidStr) {
+  if (!cidStr) {
+    throw new Error("Missing cidStr to publish");
   }
   if (!ipfsAPI) {
     throw new Error("Connect to a go-server node first");
@@ -134,34 +133,18 @@ async function publish(cid) {
 
   // Publish will send a pubsub msg to the server to update their ipns record
   const results = await ipfsBrowser.name.publish(
-    `/ipfs/${cid.toBaseEncodedString()}`,
+    `/ipfs/${cidStr}`,
     {
       resolve: false,
       key: keyName,
     }
   );
 
-  console.log(`Local Publish ${results.value} to ${results.name} `); //
-
   last(
     ipfsAPI.name.resolve(keys.id, {
       stream: false,
     })
-  )
-    .then((name) => {
-      if (name == `/ipfs/${cid.toBaseEncodedString()}`) {
-        console.log(
-          `Look at that! /ipns/${
-            keys.id
-          } resolves to /ipfs/${cid.toBaseEncodedString()}`
-        );
-      } else {
-        console.log(
-          `[Fail], resolve did not match ${name} !== /ipfs/${cid.toBaseEncodedString()}`
-        );
-      }
-    })
-    .catch((error) => {
+  ).catch((error) => {
       console.log(error);
     });
 
@@ -170,33 +153,29 @@ async function publish(cid) {
   let pinset = [];
   let i = 0;
 
-  while (!pinset.find((p) => p.cid.toString() == cid.toString()) && i<10) {
+  while (!pinset.find((p) => p.cid.toString() == cidStr ) && i<10) {
     i++;
     console.log(
       `Pin attempt ${i} at ${new Date(Date.now()).toLocaleTimeString()}`
     );
-    pinset = await ipfsAPI.pin.add(cid); // , { timeout: 30000 }
+    pinset = await ipfsAPI.pin.add(cidStr); // , { timeout: 30000 }
   }
 
-  // .then((pinset) => {
   console.log("pinned", pinset, `${new Date(Date.now()).toLocaleTimeString()}`);
-  // })
-  // .catch((error) => {
-  //  console.log(error);
-  // });
+
 }
 
-export const goPush = async (pem, apiMultiAddr, wsMultiAddr, cid) => {
+export const goPush = async (pem, apiMultiAddr, wsMultiAddr, cidStr) => {
   // Use pem to create local ipfs node with 'self' key = pem
   ipfsBrowser = await createIpfsBrowser(pem);
 
   // 3 Steps process:
   // Connect to GoNode API (to control it),
   // connect to GoNode via websocket (for pubsub),
-  // publish the cid on the node
+  // publish the cidStr on the node
   await nodeConnect(apiMultiAddr);
   await wsConnect(wsMultiAddr);
-  await publish(cid);
+  await publish(cidStr);
 
   await ipfsBrowser.stop();
 };

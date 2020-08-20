@@ -50,7 +50,7 @@
 <div class="contain">
   <div>
     <form class="form" on:submit|preventDefault={handleInputKeyPress}>
-      <h1>Unlock your account</h1>
+      <h1>Unlock your data locker</h1>
       <Textfield
         bind:value
         type="password"

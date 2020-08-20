@@ -98,7 +98,7 @@
           <a
             href="locker"
             aria-current={segment === 'locker' ? 'page' : undefined}>
-            Your Syncs
+            locker
           </a>
         </li>
       {/if}

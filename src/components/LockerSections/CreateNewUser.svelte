@@ -6,7 +6,7 @@
 
   // svelte stuff
   import { onMount } from 'svelte'
-  import { lockerSection, username, password, error } from '../../js/stores'
+  import { wallet, lockerSection, username, password, error } from '../../js/stores'
 
   // Svelte Material UI
   import Textfield from '@smui/textfield'
@@ -24,7 +24,7 @@
   let checkedTerms
   let confirmValue = ''
 
-  if(!$username){
+  if (!$username) {
     let isDev = window.location.hostname.includes('localhost')
     let splitHost = window.location.hostname.split('.')
 
@@ -33,9 +33,9 @@
       (isDev && splitHost.length === 2)
     ) {
       $username = splitHost[0]
-    } 
+    }
   }
-  
+
   const LOCK_TYPE = 'passphrase'
 
   async function validate(passphrase) {
@@ -81,7 +81,16 @@
       // process creation
       // Create IPFS
       // Take PeerId privKey and encrypt with this password
-      $lockerSection = 'SetupDevice'
+      console.log(`Step 1. Enable  wallet`)
+      $wallet.locker
+        .getLock(LOCK_TYPE)
+        .enable($password)
+        .then(() => {
+          $lockerSection = 'SetupDevice'
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   }
 </script>

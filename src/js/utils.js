@@ -57,10 +57,10 @@ export const getData = async (ipfsNode, username) => {
         didDoc.value.service.length > 0
       ) {
         const resolvedDataSvcLink = await ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint);
-        const cid = resolvedDataSvcLink.replace("/ipfs/", "")
-        const data = await ipfsNode.dag.get(cid)
-        console.log("Resolving promise with ", {cid, data: data.value});
-        resolve({cid, data: data.value});
+        const cidStr = resolvedDataSvcLink.replace("/ipfs/", "")
+        const data = await ipfsNode.dag.get(cidStr)
+        console.log("Resolving promise with ", {cidStr, data: data.value});
+        resolve({cidStr, data: data.value});
       } else {
         console.log(new Error(`Something was false in the Did Doc`));
         reject(false);

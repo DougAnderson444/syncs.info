@@ -49,6 +49,8 @@
     }
   })
 
+  $: if (!!$dnsLink) status = 'hidden'
+
   const savePage = async (e) => {
     // disable the save button, make bar grey
     saveState = 'SAVING'

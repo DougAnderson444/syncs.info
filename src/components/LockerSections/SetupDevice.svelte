@@ -1,4 +1,6 @@
 <script>
+  import { lockerSections } from './index.js'
+
   import FormField from '@smui/form-field'
   import Button, { Label } from '@smui/button'
   import Textfield, { Input, Textarea } from '@smui/textfield'
@@ -25,11 +27,14 @@
     deviceType,
     deviceName,
     ipfsNode,
+    backgroundComponents,
+    wallet,
+    password,
   } from '../../js/stores.js'
   import { onMount } from 'svelte'
 
   import { DEVICE_TYPES } from '../../js/constants'
-
+  const LOCK_TYPE = 'passphrase'
   $deviceName = 'My Samsung'
   $deviceType = DEVICE_TYPES[0]
   let selectedDeviceType = $deviceType
@@ -37,6 +42,7 @@
   $: $ipfsNode ? (disabled = false) : (disabled = true)
 
   const handleButtonClick = async () => {
+
     $lockerSection = 'CreateUserProgress'
   }
 </script>

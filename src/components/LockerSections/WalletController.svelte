@@ -13,14 +13,12 @@
     if ($dnsLink && $publishingOn && $ipfsNode) {
       if (!$wallet)
         createWallet({ ipfs: $ipfsNode }).then((w) => {
-          console.log(`wallet created`)
-          wallet = w
+          $wallet = w
         })
       else if ($wallet.locker.isPristine()) {
         console.log(`wallet isPristine`)
       }
       // wallet exists but not on this disk
-      // $appSection = 'CreateNewUser' //?
       else if ($wallet.locker.isLocked()) {
         console.log(`wallet locked`)
         $appSection = 'LockScreen'

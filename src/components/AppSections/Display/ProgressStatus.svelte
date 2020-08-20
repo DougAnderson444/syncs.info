@@ -6,7 +6,7 @@
 </script>
 
 <style>
-  span.progress {
+  .progress {
     position: relative;
     top: 0.35em;
     left: 0;
@@ -31,7 +31,7 @@
 {#if awaiting}
   {#await awaiting then awaiting}
     <slot name="complete">
-      <span></span>
+      <div></div>
     </slot>
   {/await}
 {/if}

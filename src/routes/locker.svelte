@@ -18,7 +18,6 @@
           process.env.SAPPER_APP_WS_URL,
         )
         .then((w) => {
-          console.log(`wallet created`)
           $wallet = w
         })
   }

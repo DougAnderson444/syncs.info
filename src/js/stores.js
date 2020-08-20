@@ -30,6 +30,7 @@ export const dataRootHash = writable(0);
 
 export const appSection = writable(0);
 export const lockerSection = writable(0);
+export const backgroundComponents = writable([]);
 
 export const username = createWritableStore('username', "");
 export const password = writable("");
@@ -40,7 +41,9 @@ export const error = writable(0);
 export const dnsSuccess = writable(0);
 
 export const wallet = writable(0);
-export const rootCid = createWritableStore('rootCid', 0);
+export const identity = writable(0);
+export const did = writable(0);
+export const rootCidStr = createWritableStore('rootCidStr', 0);
 export const rootCidPem = writable(0);
 export const dataPeerId = writable(0);
 export const dnsLink = writable(0);
