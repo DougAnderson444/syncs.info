@@ -40,6 +40,7 @@
 
     if (!!subdomain) {
       subdomain = subdomain.replace(`.`, '') //lose the dot
+      $username = subdomain
       let str = $page.host.includes('.localhost')
         ? subdomain + `.${DID_DOC_TLD}`
         : $page.host
@@ -54,7 +55,7 @@
   const savePage = async (e) => {
     // disable the save button, make bar grey
     saveState = 'SAVING'
-    $username = subdomain
+    
     await goto('/locker');
     //$appSection = 'CreateNewUser'
   }

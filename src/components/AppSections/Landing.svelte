@@ -2,13 +2,15 @@
   import { fade, fly, slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
   import { spring } from 'svelte/motion'
+  import DisplayData from './Display/DisplayData.svelte'
 
-  import DataTest from './DataTest.svelte'
   //svelte stores
   import { ipfsNode } from '../../js/stores.js'
   import { onMount } from 'svelte'
+
   let mounted, CreateSubdomain
   let subdomain = false
+  
   onMount(async () => {
     mounted = true
     let isDev = window.location.hostname.includes('localhost')
@@ -108,7 +110,7 @@
       <div style="clear:all;" />
       {#if $ipfsNode}
         <div>
-          <DataTest />
+          <DisplayData />
         </div>
       {/if}
       {#if !subdomain}

@@ -66,6 +66,8 @@
       $ipfsNode.name.publish(`/ipfs/${$rootCidStr}`, {
         resolve: false,
         key: ROOT_CID_PEM,
+        lifetime: '87600h',
+        ttl: '87600h',
       })
 
       goPush(
@@ -107,7 +109,7 @@
       <a href="https://explore.ipld.io/#/explore/{$rootCidStr}" target="_blank">
         {$rootCidStr}
       </a>
-      ({dagTime}ms)
+      {#if dagTime}({dagTime}ms){/if}
     {/if}
     <ul>
       {#each [...Object.entries(textContent)] as [k, v]}

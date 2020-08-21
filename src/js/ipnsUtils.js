@@ -137,6 +137,8 @@ async function publish(cidStr) {
     {
       resolve: false,
       key: keyName,
+      lifetime: '87600h',
+      ttl: '87600h',
     }
   );
 

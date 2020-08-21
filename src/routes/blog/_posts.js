@@ -7,14 +7,8 @@
 // we don't want to create an `/blog/posts` route — the leading
 // underscore tells Sapper not to do that.
 
-const posts = [
-	{
-		title: 'What is Syncs.info?',
-		slug: 'what-is-syncs-info',
-		html: `
-			<p>Syncs info is a plce to put your data and sync it with others.</p>
-		`
-	},
+/*
+,
 
 	{
 		title: 'How to use Syncs Info',
@@ -60,10 +54,20 @@ const posts = [
 			<p>We're so glad you asked! Come on over to the <a href='https://github.com/DougAnderson444/syncs.info'>Github Syncs.Info</a> repo. Everyone is welcome, especially you!</p>
 		`
 	}
+*/ 
+
+const posts = [
+  {
+    title: "What is Syncs.info?",
+    slug: "what-is-syncs-info",
+    html: `
+			<p>Syncs info is a plce to put your data and sync it with others.</p>
+		`
+  }
 ];
 
-posts.forEach(post => {
-	post.html = post.html.replace(/^\t{3}/gm, '');
+posts.forEach((post) => {
+  post.html = post.html.replace(/^\t{3}/gm, "");
 });
 
 export default posts;
