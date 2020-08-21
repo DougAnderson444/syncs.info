@@ -158,9 +158,10 @@ async function publish(cidStr) {
   while (!pinset.find((p) => p.cid.toString() == cidStr ) && i<10) {
     i++;
     console.log(
-      `Pin attempt ${i} at ${new Date(Date.now()).toLocaleTimeString()}`
+      `Pin attempt ${i} for ${cidStr} at ${new Date(Date.now()).toLocaleTimeString()}`
     );
-    pinset = await ipfsAPI.pin.add(cidStr); // , { timeout: 30000 }
+    pinset = await ipfsAPI.pin.add(cidStr, { timeout: 15000 }); // 
+    console.log(`pinset is `, pinset)
   }
 
   console.log("pinned", pinset, `${new Date(Date.now()).toLocaleTimeString()}`);

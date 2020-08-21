@@ -1,5 +1,6 @@
 // IPFS ipfs for the service worker
 import IPFS from "ipfs";
+import last from "it-last"; // gets last value of async iterator
 
 var ipfs, nodeId;
 
@@ -60,7 +61,7 @@ export const get = async (username) => {
 };
 
 export const getIPLDObj = async (cid) => {
-  cid = new IPFS.CID(cid)
+  //cid = new IPFS.CID(cid)
   let cidObj = await ipfs.dag.get(cid, { path: '/' })
   return Object.fromEntries(await Promise.all(Object.entries(cidObj.value).map(async ([k, v]) => {
     if (IPFS.CID.isCID(v)) {
@@ -75,3 +76,26 @@ export const toCID = async(obj)=>{
 
   return (new IPFS.CID(obj))
 }
+
+export const getRootCidStr = async (dlink) => {
+  let didDoc
+  // get root cid string from subdomain name
+  try {
+    let resolvedDnsLink = await last(ipfs.name.resolve(dlink));
+    didDoc = await ipfs.dag.get(resolvedDnsLink.replace("/ipfs/", ""));
+  } catch (error) {
+    console.log(error);
+  }
+  /* Need to publish to ipns first! Or this wont resolve to anything */
+  try {
+    if (didDoc && didDoc.value) {
+      let resolvedDataSvcLink = await ipfs.resolve(
+        didDoc.value.service[0].serviceEndpoint
+      );
+      let rootCidStr = resolvedDataSvcLink.replace("/ipfs/", "");
+      return rootCidStr
+    }
+  } catch (error) {
+    console.log(`No data\n`, error);
+  }
+};

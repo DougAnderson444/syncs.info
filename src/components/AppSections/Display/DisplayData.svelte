@@ -1,50 +1,60 @@
 <script>
-  import { onMount } from 'svelte'
-  import { DID_DOC_TLD } from '../../../js/constants.js'
-  import { getDNSLinkFromName } from '../../../js/utils.js'
-  import last from 'it-last' // gets last value of async iterator
+  import { onMount } from "svelte";
+  import { getDNSLinkFromName } from "../../../js/utils.js";
+  import { getIPLDObj, getRootCidStr } from "../../../js/ipfsNode";
+  import { username, rootCidStr, aesKey32 } from "../../../js/stores.js";
+  import { DID_DOC_TLD } from "../../../js/constants.js";
+  import { getDecrypted } from "../../../js/process";
 
-  import { ipfsNode, username } from '../../../js/stores.js'
+  export let name = `${$username}.${DID_DOC_TLD}`; // default to curret site user
+  let rcs, textContent;
 
-  export let name = `${$username}.${DID_DOC_TLD}` // default to curret site user
-  let resolvedDnsLink, resolvedDataSvcLink, textContent
+  const triggerCidStr = async cidStr => {
+    if (cidStr) textContent = await getIPLDObj(cidStr);
+  };
+
+  $: if (name == `${$username}.${DID_DOC_TLD}`) rcs = $rootCidStr; // make it reactive if it's default user being displayed
+  $: triggerCidStr(rcs);
 
   onMount(async () => {
-    if ($ipfsNode) {
-      let dlink = await getDNSLinkFromName(name)
-      console.log(`dlink is `, dlink)
+    //rootCidStr.useLocalStorage()
+    let dlink = await getDNSLinkFromName(name);
+    rcs = await getRootCidStr(dlink);
+  });
 
-      try {
-        resolvedDnsLink = await last($ipfsNode.name.resolve(dlink))
-        didDoc = await $ipfsNode.dag.get(resolvedDnsLink.replace('/ipfs/', ''))
-        /* Need to publish to ipns first! Or this wont resolve to anything */
-        try {
-          if (didDoc.value) {
-            resolvedDataSvcLink = await $ipfsNode.resolve(
-              didDoc.value.service[0].serviceEndpoint,
-            )
-            textContent = await getIPLDObj(resolvedDataSvcLink)
-          }
-        } catch (error) {
-          console.log(`No data saved by this user ${name}\n`, error)
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  })
+  const decrypted = async v => {
+    return await getDecrypted(v.value, $aesKey32, v.iv);
+  };
 </script>
 
-{#if resolvedDataSvcLink}
-  Data Link:
-  <a
-    href="https://explore.ipld.io/#/explore{resolvedDataSvcLink}"
-    target="_blank">
-    {resolvedDataSvcLink}
-  </a>
-{/if}
-{#if textContent}
-  {#each [...Object.entries(textContent)] as [k, v]}
-    <li>{k}: {v.value}</li>
-  {/each}
-{/if}
+<style>
+  ul {
+    list-style: none;
+    text-align: left;
+  }
+  div {
+    margin: 1em;
+    padding: 1em;
+  }
+</style>
+
+<div>
+  {#if rcs}
+    Data Link:
+    <a href="https://explore.ipld.io/#/explore/ipfs/{rcs}" target="_blank">
+      {rcs}
+    </a>
+  {/if}
+  {#if textContent}
+    <ul>
+      {#each [...Object.entries(textContent)] as [k, v]}
+        <li>
+          {k}: {v.value} ({v.encrypted ? 'Encrypted' : 'Plaintext'})
+          {#if v.encrypted}
+            {#await decrypted(v)}decrypting...{:then r}{r}{/await}
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
+</div>

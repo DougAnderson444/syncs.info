@@ -1,47 +1,50 @@
 <script>
-  import last from 'it-last' // gets last value of async iterator
-  import { onMount } from 'svelte'
+  import last from "it-last"; // gets last value of async iterator
+  import { onMount } from "svelte";
   import {
     wallet,
     rootCidPem,
     rootCidStr,
     ipfsNode,
     username,
-    serviceEndpoint,
-    dnsLink,
-  } from '../../js/stores.js'
-  import { getDNSLinkFromName } from '../../js/utils.js'
-  import { DID_DOC_TLD, ROOT_CID_PEM } from '../../js/constants.js'
-  import ObjectComp from '../Utility/ObjectComp.svelte'
-  import DataTest from '../AppSections/DataTest.svelte'
+    dnsLink
+  } from "../../js/stores.js";
+  import { getDNSLinkFromName } from "../../js/utils.js";
+  import { DID_DOC_TLD, ROOT_CID_PEM } from "../../js/constants.js";
+  import ObjectComp from "../Utility/ObjectComp.svelte";
+  import DataTest from "../AppSections/DataTest.svelte";
 
-  let cid, nodeId, dagTime, start, resolvedDnsLink, didDoc, resolvedDataSvcLink
-  let i = 0
-  let key, value
-  let textContent = {}
+  let cid, nodeId, dagTime, start, resolvedDnsLink, didDoc, resolvedDataSvcLink;
+  let i = 0;
+  let key, value;
+  let textContent = {};
 
-  onMount(async () => {
-    username.useLocalStorage()
-    serviceEndpoint.useLocalStorage()
-
-    $rootCidPem = await $wallet.locker.getValue(ROOT_CID_PEM) // $rootCidPem is username + password + index=1
-
-    if ($rootCidPem && $ipfsNode) {
-      $dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`)
+  const getDidData = async () => {
+    console.log(`get Did Data`)
+    if ($ipfsNode) {
+      $dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`);
 
       try {
-        resolvedDnsLink = await last($ipfsNode.name.resolve($dnsLink))
-        didDoc = await $ipfsNode.dag.get(resolvedDnsLink.replace('/ipfs/', ''))
+        resolvedDnsLink = await last($ipfsNode.name.resolve($dnsLink));
+        didDoc = await $ipfsNode.dag.get(resolvedDnsLink.replace("/ipfs/", ""));
         /* Need to publish to ipns first! Or this wont resolve to anything */
         if (didDoc.value && $rootCidStr)
           resolvedDataSvcLink = await $ipfsNode.resolve(
-            didDoc.value.service[0].serviceEndpoint,
-          )
+            didDoc.value.service[0].serviceEndpoint
+          );
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-  })
+  };
+
+  onMount(async () => {
+    username.useLocalStorage();
+
+    $rootCidPem = await $wallet.locker.getValue(ROOT_CID_PEM); // $rootCidPem is username + password + index=1
+
+    getDidData()
+  });
 </script>
 
 Locker Contents

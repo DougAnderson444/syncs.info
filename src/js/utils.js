@@ -41,33 +41,3 @@ export const catchAndLog = (fn, log) => {
   };
 };
 
-export const getData = async (ipfsNode, username) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const dnsLink = await getDNSLinkFromName(`${username}.${DID_DOC_TLD}`);
-      const resolvedDnsLink = await last(ipfsNode.name.resolve(dnsLink));
-      const didDoc = await ipfsNode.dag.get(
-        resolvedDnsLink.replace("/ipfs/", "")
-      );
-
-      if (
-        didDoc &&
-        didDoc.value &&
-        didDoc.value.service &&
-        didDoc.value.service.length > 0
-      ) {
-        const resolvedDataSvcLink = await ipfsNode.resolve(didDoc.value.service[0].serviceEndpoint);
-        const cidStr = resolvedDataSvcLink.replace("/ipfs/", "")
-        const data = await ipfsNode.dag.get(cidStr)
-        console.log("Resolving promise with ", {cidStr, data: data.value});
-        resolve({cidStr, data: data.value});
-      } else {
-        console.log(new Error(`Something was false in the Did Doc`));
-        reject(false);
-      }
-    } catch (error) {
-      console.log(error)
-      reject(false);
-    }
-  });
-};

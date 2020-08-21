@@ -50,6 +50,7 @@ export const dnsLink = writable(0);
 
 export const publishingOn = writable(0);
 export const serviceEndpoint = createWritableStore('serviceEndpoint', "");
+export const aesKey32 = writable(0);
 
 const pub = async([$dataRootHash]) => {
   console.log(`Publishing $dataRootHash: `, $dataRootHash);

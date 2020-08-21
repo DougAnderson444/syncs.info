@@ -64,7 +64,6 @@ export const createNewIdentity = async (
   deviceName,
   deviceType
 ) => {
-
   console.log(`Step 2: Create Master keypair`);
   const { algorithm, mnemonic, seed, masterKeyPair } = await passwordToPem(
     username,
@@ -89,13 +88,9 @@ export const createNewIdentity = async (
       ...masterKeyPair,
     },
   });
-
 };
 
-// password >> JWK raw >> pem
-// need JWK raw to create IPFS Node PeerId
-// need pem to create DID
-export async function passwordToPem(username, password, index = 0) {
+export const indexedSeedBuffer = async (username, password, index = 0) => {
   const tld = "syncs.info";
   const salt = `${username}${tld}`;
   const iterations = 1000;
@@ -120,10 +115,38 @@ export async function passwordToPem(username, password, index = 0) {
         Buffer.from(index.toString()).toString("hex")
     );
   }
-  const masterKeyPair = await cryptoKeys.getKeyPairFromSeed(seedBuffer, "rsa"); // keyPair is pem (privacy enhanced mail, key format)
+  return { mnemonic, seedBuffer };
+};
+
+export const passwordToIndexedSeed32 = async (
+  username,
+  password,
+  index = 0
+) => {
+  const { seedBuffer } = await indexedSeedBuffer(username, password, index);
+  const seed32 = await IPFS.multihashing.digest(seedBuffer, "sha2-256"); // seed needs to be 32 byte uint8array
+  return seed32;
+};
+
+// password >> JWK raw >> pem
+// need JWK raw to create IPFS Node PeerId
+// need pem to create DID
+export async function passwordToPem(username, password, index = 0) {
+  let algorithm = "rsa";
+  const { mnemonic, seedBuffer } = await indexedSeedBuffer(
+    username,
+    password,
+    index
+  );
+
+  const masterKeyPair = await cryptoKeys.getKeyPairFromSeed(
+    seedBuffer,
+    algorithm
+  ); // keyPair is pem (privacy enhanced mail, key format)
   //const pem = masterKeyPair.privateKey; // it's in pem format
-  return { algorithm: "rsa", mnemonic, masterKeyPair, seed: seedBuffer };
+  return { algorithm, mnemonic, masterKeyPair, seed: seedBuffer };
 }
+
 export async function pemToPeerId(pem) {
   const privKeyRaw = await IPFS.crypto.keys.import(pem); // privKeyRaw is JWK javascript web key
   const peerId = await IPFS.PeerId.createFromPrivKey(privKeyRaw.bytes);
@@ -155,3 +178,22 @@ async function pemToIPFS(pem) {
 
   return ipfs;
 }
+
+export const getEncrypted = async (val, key32) => {
+  const iv = IPFS.crypto.randomBytes(16);
+  // Encrypting
+  const cipher = await IPFS.crypto.aes.create(key32, iv);
+  const encryptedBuffer = await cipher.encrypt(Buffer.from(val)); //Uint8Array
+  return { value: encryptedBuffer, iv } //.toString("hex")
+  
+  //Buffer.from(encryptedBuffer).toString("hex")
+};
+
+export const getDecrypted = async (val, key32, iv) => {
+
+  // Decrypting
+  const decipher = await IPFS.crypto.aes.create(key32, iv)
+  const decryptedBuffer = await decipher.decrypt(val)
+
+  return decryptedBuffer.toString('utf-8')
+};

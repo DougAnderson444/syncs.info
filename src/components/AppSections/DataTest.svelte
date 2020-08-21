@@ -1,120 +1,117 @@
 <script>
-  import last from 'it-last' // gets last value of async iterator
-  import { onMount } from 'svelte'
-  import IpfsResolve from '../IpfsResolve.svelte'
-  import { goPush } from '../../js/ipnsUtils'
-  import { getData } from '../../js/utils'
-  import { importKey } from '../../js/ipfsUtils'
-  import { getIPLDObj, toCID } from '../../js/ipfsNode'
-  import ObjectComp from '../Utility/ObjectComp.svelte'
+  import last from "it-last"; // gets last value of async iterator
+  import { onMount } from "svelte";
+  import IpfsResolve from "../IpfsResolve.svelte";
+  import { getIPLDObj, toCID } from "../../js/ipfsNode";
+  import { importKey } from "../../js/ipfsUtils";
+  import { goPush } from "../../js/ipnsUtils";
+  import { getEncrypted, passwordToIndexedSeed32 } from "../../js/process";
+  import ObjectComp from "../Utility/ObjectComp.svelte";
+  import DisplayData from "./Display/DisplayData.svelte";
 
   //svelte stores
   import {
-    wallet,
     rootCidStr,
     rootCidPem,
     ipfsNode,
     username,
-    serviceEndpoint,
-    dnsLink,
-  } from '../../js/stores.js'
-  import { DID_DOC_TLD, ROOT_CID_PEM } from '../../js/constants.js'
-  import { getDNSLinkFromName } from '../../js/utils.js'
+    password,
+    aesKey32
+  } from "../../js/stores.js";
+  import { DID_DOC_TLD, ROOT_CID_PEM } from "../../js/constants.js";
+  import { getDNSLinkFromName } from "../../js/utils.js";
 
-  let dagTime, start, resolvedDnsLink, didDoc, subdomain
-  let key, val
-  let textContent = []
+  let dagTime, start, resolvedDnsLink, didDoc, subdomain;
+  let key, val;
 
-  let isDev = window.location.hostname.includes('localhost')
-  let splitHost = window.location.hostname.split('.')
+  passwordToIndexedSeed32($username, $password, 0).then(r => ($aesKey32 = r));
+
+  let isDev = window.location.hostname.includes("localhost");
+  let splitHost = window.location.hostname.split(".");
 
   if ((!isDev && splitHost.length === 3) || (isDev && splitHost.length === 2)) {
-    subdomain = splitHost[0]
-  }
-
-  $: {
-    ;(async () => {
-      if ($rootCidStr) textContent = await getIPLDObj($rootCidStr)
-    })()
+    subdomain = splitHost[0];
   }
 
   onMount(async () => {
-    rootCidStr.useLocalStorage()
-  })
+    //rootCidStr.useLocalStorage()
+  });
 
   const handleSubmit = async () => {
-    let value = val
-    start = Date.now()
-
-    let edits = {}
-    edits[key] = await $ipfsNode.dag.put({ value })
+    start = Date.now();
+    const { value, iv } = await getEncrypted(val, $aesKey32);
+    let edits = {};
+    edits[key] = await $ipfsNode.dag.put({ value, encrypted: true, iv });
     if ($rootCidStr) {
-      let previous = await $ipfsNode.dag.get($rootCidStr, { path: '/' })
-      let cid = await $ipfsNode.dag.put({ ...previous.value, ...edits })
-      $rootCidStr = cid.toBaseEncodedString()
+      let previous = await $ipfsNode.dag.get($rootCidStr, { path: "/" });
+      let cid = await $ipfsNode.dag.put({ ...previous.value, ...edits });
+      $rootCidStr = cid.toBaseEncodedString();
     } else {
-      let cid = await $ipfsNode.dag.put({ ...edits })
-      $rootCidStr = cid.toBaseEncodedString()
+      let cid = await $ipfsNode.dag.put({ ...edits });
+      $rootCidStr = cid.toBaseEncodedString();
     }
 
-    textContent = await getIPLDObj($rootCidStr)
-    dagTime = Date.now() - start
-    console.log(dagTime + 'ms')
+    console.log(`$rootCidStr is now ${$rootCidStr}`);
 
+    dagTime = Date.now() - start;
+
+    // rootCidPem is loaded once the locker is accessed
     if ($rootCidPem) {
-      await importKey($ipfsNode, ROOT_CID_PEM, $rootCidPem)
-      $ipfsNode.name.publish(`/ipfs/${$rootCidStr}`, {
-        resolve: false,
-        key: ROOT_CID_PEM,
-        lifetime: '87600h',
-        ttl: '87600h',
-      })
+      await importKey($ipfsNode, ROOT_CID_PEM, $rootCidPem);
+      $ipfsNode.name
+        .publish(`/ipfs/${$rootCidStr}`, {
+          resolve: true,
+          key: ROOT_CID_PEM,
+          lifetime: "87600h",
+          ttl: "87600h"
+        })
+        .then(async r => {
+          console.log(`Local pub updated, \n${r.value} & \n${r.name}`);
+          console.log(`Do a test resolve on /ipns/${r.name}`);
+          let resolvedDataSvcLink = await $ipfsNode.resolve(`/ipns/${r.name}`);
+          console.log(`Test resolved:`, resolvedDataSvcLink);
+        })
+        .catch(error => console.log(error));
 
       goPush(
         $rootCidPem,
         process.env.SAPPER_APP_API_URL,
         process.env.SAPPER_APP_WS_URL,
-        $rootCidStr,
+        $rootCidStr
       )
         .then(() => {
-          console.log(`published to go ${Date.now() - start}ms`)
+          console.log(`published to go ${Date.now() - start}ms`);
         })
-        .catch((error) => {
-          console.log(error)
-        })
+        .catch(error => {
+          console.log(error);
+        });
     }
-  }
+  };
 </script>
 
 <style>
-  ul {
-    list-style: none;
-    text-align: left;
-  }
+
 </style>
 
 {#if $ipfsNode}
   {#if $rootCidPem}
-    <p>Save some text to IPFS:</p>
+    <p>Save some data to sync:</p>
     <form on:submit|preventDefault={handleSubmit}>
-      <input placeholder="My favorite color" bind:value={key} name="key" />
-      <input placeholder="Blue" bind:value={val} name="value" />
+      <input
+        placeholder="My favorite color"
+        bind:value={key}
+        name="key"
+        disabled={!$aesKey32} />
+      <input
+        placeholder="Blue"
+        bind:value={val}
+        name="value"
+        disabled={!$aesKey32} />
       <input type="submit" value="Save" />
     </form>
   {/if}
-  {#if $rootCidStr && textContent}
-    <br />
-    {#if $rootCidStr}
-      IPLD Root Hash:
-      <a href="https://explore.ipld.io/#/explore/{$rootCidStr}" target="_blank">
-        {$rootCidStr}
-      </a>
-      {#if dagTime}({dagTime}ms){/if}
-    {/if}
-    <ul>
-      {#each [...Object.entries(textContent)] as [k, v]}
-        <li>{k}: {v.value}</li>
-      {/each}
-    </ul>
-  {/if}
+  <div style="clear:all;" />
+  <div>
+    <DisplayData />
+  </div>
 {/if}
