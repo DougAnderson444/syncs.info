@@ -49,10 +49,10 @@
     <ul>
       {#each [...Object.entries(textContent)] as [k, v]}
         <li>
-          {k}: {v.value} ({v.encrypted ? 'Encrypted' : 'Plaintext'})
+          {k}:
           {#if v.encrypted}
-            {#await decrypted(v)}decrypting...{:then r}{r}{/await}
-          {/if}
+            {#await decrypted(v)}decrypting...{:then r}{r} (Decrypted){/await}
+          {:else}{v.value}{/if}
         </li>
       {/each}
     </ul>

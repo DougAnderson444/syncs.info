@@ -1,31 +1,31 @@
 <script>
-  import { fade, fly, slide } from 'svelte/transition'
-  import { quintOut } from 'svelte/easing'
-  import { spring } from 'svelte/motion'
-  import DisplayData from './Display/DisplayData.svelte'
+  import { fade, fly, slide } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
+  import { spring } from "svelte/motion";
+  import DisplayData from "./Display/DisplayData.svelte";
 
   //svelte stores
-  import { ipfsNode } from '../../js/stores.js'
-  import { onMount } from 'svelte'
+  import { ipfsNode } from "../../js/stores.js";
+  import { onMount } from "svelte";
 
-  let mounted, CreateSubdomain
-  let subdomain = false
-  
+  let mounted, CreateSubdomain;
+  let subdomain = false;
+
   onMount(async () => {
-    mounted = true
-    let isDev = window.location.hostname.includes('localhost')
-    let splitHost = window.location.hostname.split('.')
+    mounted = true;
+    let isDev = window.location.hostname.includes("localhost");
+    let splitHost = window.location.hostname.split(".");
 
     if (
       (!isDev && splitHost.length === 3) ||
       (isDev && splitHost.length === 2)
     ) {
-      subdomain = splitHost[0]
+      subdomain = splitHost[0];
     } else {
-      const module = await import('../CreateSubdomain.svelte')
-      CreateSubdomain = module.default
+      const module = await import("../CreateSubdomain.svelte");
+      CreateSubdomain = module.default;
     }
-  })
+  });
 </script>
 
 <style>

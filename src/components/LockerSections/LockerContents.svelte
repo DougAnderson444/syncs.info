@@ -20,7 +20,7 @@
   let textContent = {};
 
   const getDidData = async () => {
-    console.log(`get Did Data`)
+    
     if ($ipfsNode) {
       $dnsLink = await getDNSLinkFromName(`${$username}.${DID_DOC_TLD}`);
 

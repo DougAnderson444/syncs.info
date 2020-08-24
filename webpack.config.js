@@ -12,6 +12,8 @@ const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const alias = {
   svelte: path.resolve("node_modules", "svelte"),
+  fs: "graceful-fs",
+  util: "./node_modules/util/util.js",
 };
 const extensions = [".mjs", ".js", ".json", ".svelte", ".html"];
 const mainFields = ["svelte", "module", "browser", "main"];
@@ -39,6 +41,11 @@ module.exports = {
     resolve: {
       alias: {
         svelte: path.resolve("node_modules", "svelte"),
+        fs: "graceful-fs",
+        util: "util",
+        "sodium-native": "@geut/sodium-javascript-plus",
+        "sodium-universal": "@geut/sodium-javascript-plus",
+        hyperswarm: "hyperswarm-web",
       },
       extensions: [".mjs", ".js", ".svelte"],
       mainFields: ["svelte", "browser", "module", "main"],

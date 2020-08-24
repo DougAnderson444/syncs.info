@@ -1,6 +1,7 @@
 <script>
   import Nav from '../components/Nav.svelte'
   import IPFSComp from '../components/IPFSComp.svelte'
+  import DatSDK from "../components/DatSDK.svelte";
   import { onMount } from 'svelte'
 
   export let segment
@@ -29,3 +30,4 @@
   </main>
 {/if}
 <IPFSComp />
+<DatSDK />
