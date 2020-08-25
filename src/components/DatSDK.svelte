@@ -2,12 +2,10 @@
   import { onMount } from "svelte";
   import SDK from "dat-sdk";
 
-  let log;
+  let log = "";
+  let wellKnown = "";
 
   onMount(async () => {
-    const sdk = await SDK();
-    const { Hypercore, Hyperdrive, resolveName, close } = sdk;
-
     // This will run your code
     main().catch(e => {
       // If there's an error blow up the process
@@ -15,13 +13,16 @@
         throw e;
       });
     });
+
+    let res = await fetch("/.well-known/dat");
+    wellKnown = await res.text();
   });
 
   // Dat-SDK makes use of JavaScript promises
   // You'll usually want to use it from an async function
   async function main() {
     try {
-      var { Hypercore, close } = await SDK({
+      var { Hypercore, resolveName, close } = await SDK({
         persist: false
       });
 
@@ -64,7 +65,15 @@
   }
 </script>
 
-<div>
+<style>
+  .tiny {
+    font-size: 0.7rem;
+    margin: 1em;
+    padding: 1em;
+  }
+</style>
+
+<div class="tiny">
   {#if log}
     {@html log}
   {/if}
