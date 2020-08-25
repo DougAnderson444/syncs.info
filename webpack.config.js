@@ -43,6 +43,7 @@ module.exports = {
         svelte: path.resolve("node_modules", "svelte"),
         fs: "graceful-fs",
         util: "util",
+        "../sodium-modules": "../sodium-modules.json",
         "sodium-native": "@geut/sodium-javascript-plus",
         "sodium-universal": "@geut/sodium-javascript-plus",
         hyperswarm: "hyperswarm-web",
