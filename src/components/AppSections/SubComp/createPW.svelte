@@ -20,14 +20,13 @@
     )
     status = `Password creation begins ` + new Date(start).toLocaleTimeString()
 
-    const { algorithm, mnemonic, masterKeyPair, seed } = await passwordToPem(
+    const { algorithm, mnemonic: mne, masterKeyPair, seed } = await passwordToPem(
       $username,
       $password,
     )
     console.log(`Password created: `, Date.now() - start)
-    console.log(`mnemonic: `, mnemonic)
-    $mnemonic = 'Some mnemonic'
-    $mnemonic = mnemonic
+    console.log(`mnemonic: `, mne)
+    $mnemonic = mne
     /*
     status = `Password created: ` + (Date.now() - start)
     $algorithm = algorithm
