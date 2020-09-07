@@ -19,6 +19,8 @@
     "buffer": "^5.6.0",
     "compression": "^1.7.1",
     "dat-sdk": "^2.7.0",
+    "delay": "^4.4.0",
+    "events.once": "^2.0.2",
     "faunadb": "^2.14.2",
     "graceful-fs": "^4.2.4",
     "human-crypto-keys": "^0.1.4",
@@ -27,11 +29,13 @@
     "ipfs-postmsg-proxy": "DougAnderson444/ipfs-postmsg-proxy",
     "ipns": "^0.7.3",
     "it-last": "^1.0.2",
+    "js-did-hyper": "file:../js-did-hyper",
     "normalize-value": "^1.0.1",
     "p-retry": "^4.2.0",
     "polka": "next",
     "prom-client": "^12.0.0",
     "sapper-environment": "^1.0.1",
+    "simple-peer": "^9.7.2",
     "sirv": "^0.4.0",
     "streamlined-idm-wallet-sdk": "DougAnderson444/streamlined-idm-wallet-sdk",
     "uid-promise": "^1.1.0",
@@ -39,6 +43,9 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.11.5",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-env": "^7.11.5",
     "@smui/button": "^1.0.0-beta.21",
     "@smui/card": "^1.0.0-beta.21",
     "@smui/checkbox": "^1.0.0-beta.21",
@@ -49,11 +56,14 @@
     "@smui/select": "^1.0.0-beta.21",
     "@smui/switch": "^1.0.0",
     "@smui/textfield": "^1.0.0-beta.21",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-module-resolver": "^4.0.0",
     "chai": "^4.2.0",
     "css-loader": "^4.0.0",
     "cssnano": "^4.1.10",
     "cypress": "^4.12.1",
     "http-server": "^0.12.3",
+    "hyper-svelte-component": "file:../hyper-svelte-component",
     "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^8.1.1",
     "node-sass": "^4.14.1",
@@ -71,5 +81,11 @@
     "node": "12.x"
   },
   "repository": "https://github.com/DougAnderson444/syncs.info",
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "browser": {
+    "dat-dns": "./dns-web.js",
+    "hyperswarm": "hyperswarm-web",
+    "sodium-native": "@geut/sodium-javascript-plus",
+    "sodium-universal": "@geut/sodium-javascript-plus"
+  }
 }
