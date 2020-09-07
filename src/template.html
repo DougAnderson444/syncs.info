@@ -22,10 +22,6 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto+Mono"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
     <!-- Sapper generates a <style> tag containing critical CSS
 	     for the current page. CSS for the rest of the app is
 	     lazily loaded when it precaches secondary pages -->
@@ -36,6 +32,10 @@
     %sapper.head%
   </head>
   <body>
+    <script src="dat-sdk-bundle.js"></script>
+    <script>
+      const SDK = window.datSDK;
+    </script>
     <!-- The application will be rendered inside this element,
 	     because `src/client.js` references it -->
     <div id="sapper">%sapper.html%</div>
