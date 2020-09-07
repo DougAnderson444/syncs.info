@@ -30,4 +30,4 @@
   </main>
 {/if}
 <IPFSComp />
-<HyperComp />
+<!-- HyperComp / -->

@@ -1,5 +1,5 @@
 <script>
-  import * as node from '../js/ipfsNode.js'
+  import * as node from '../js/ipfsNode.js';
 
   //svelte stores
   import { ipfsNode } from '../js/stores.js'

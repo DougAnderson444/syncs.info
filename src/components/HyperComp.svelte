@@ -1,101 +1,153 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import SDK from "dat-sdk";
+  import { once } from "events";
+  import delay from "delay";
+
   import ObjectComp from "./Utility/ObjectComp.svelte";
 
   let log = "";
-  let wellKnown = "";
-  let posts, stats;
+  let posts, stats, value;
+  let sdkOpts = {
+    persist: true,
+    driveOpts: { sparse: false }
+  };
+
+  /*
+      swarmOpts: {
+      simplePeer: {
+        config: {
+          iceServers: [
+            {
+              urls: [
+                "stun:stun.l.google.com:19302",
+                "stun:global.stun.twilio.com:3478"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  */
 
   onMount(async () => {
     // This will run your code
-    main().catch(e => {
-      // If there's an error blow up the process
-      process.nextTick(() => {
-        throw e;
-      });
-    });
+    main();
+
+    const handleDestory = async () => {
+      // this is called when the component is destroyed
+      //if ($closeHyperdrive) await $closeHyperdrive();
+    };
+    return handleDestory;
   });
 
   // Dat-SDK makes use of JavaScript promises
   // You'll usually want to use it from an async function
   async function main() {
+    // Wrap your code in try-catch to handle errors
     try {
-      var { Hyperdrive, resolveName, close } = await SDK({
-        persist: true,
-        driveOpts: { sparse: false }
+      // This time we're going to create two instances of the SDK to simulate there being two peers
+      var { Hyperdrive: Hyperdrive1, close: close1 } = await SDK({
+        persist: false
       });
-      // Creating a Hyperdrive involves specifying a name for it
-      // The `name` will yield a unique Hyperdrive key on your computer
-      // Every time you use the same `name` on your computer will get the same drive
-      // The `name` can be anything that's not a hyper:// URL or look like a domain name
-      const drive = Hyperdrive("example");
+      var { Hyperdrive: Hyperdrive2, close: close2 } = await SDK({
+        persist: false
+      });
 
-      // Before using functions of the drive,
-      // It's good to wait for it to fully load
-      // However, most async functions can be used right away
-      await drive.ready();
+      // Create your writable drive as before
+      const original = Hyperdrive1("example");
 
-      // Here's how you can generate a hyper URL for a drive
-      const url = `hyper://${drive.key.toString("hex")}`;
-      log += `<br/>Drive ready, ${url}`;
+      await original.writeFile("/example.txt", "Hello World!");
 
-      const initFile = "/inititalized.txt";
-      // An error gets thrown if you try to read something that doesn't exist
+      // Get the drive key
+      const { key } = original;
+
+      console.log("Prepared drive", key.toString("hex"));
+
+      // Load the drive on the second peer using the key
+      const copy = Hyperdrive2(key); //key.toString('hex'), Buffer.from(key.toString('hex'), 'hex')
+
+      await copy.ready();
+
+      console.log(
+        "Loaded drive on other peer",
+        copy.key.toString("hex"),
+        copy.writable
+      );
+
+      // If we try to load data right away, it might not be loaded yet
       try {
-        await drive.readFile(initFile);
-        log += `<br/>EXISTING drive`;
+        await copy.readFile("/example.txt", "utf");
       } catch (e) {
         console.error(e.message);
-        log += `<br/>NEW drive: ` + e.message;
-        // You can use a file path and some data to write a file
-        await drive.writeFile(
-          initFile,
-          "Created " + new Date(Date.now()).toLocaleTimeString()
-        );
       }
 
-      // You can use readFile to get the content back
-      // By default it will read content as raw buffers
-      log += `<br/>Wrote to drive` + (await drive.readFile(initFile));
+      if (copy.peers.length) {
+        console.log("Already found peers for drive");
+      } else {
+        console.log("Waiting for peers to connect");
 
-      // You can read it as text too
-      log += `<br/>Read from drive ` + (await drive.readFile(initFile, "utf8"));
+        copy.on("peer-open", peer => {
+          console.log(
+            "Connected to peer",
+            peer.remotePublicKey.toString("hex")
+          );
+        });
 
-      try {
-        posts = await drive.readdir("/posts");
-      } catch (error) {
-        // You can create folders to group files together
-        await drive.mkdir("/posts");
-        console.log("Created `posts` folder");
-        log += `<br/>Created 'posts' folder `;
-        // You can write files to a folder using the right path
-        await drive.writeFile("/posts/one.md", "# Hello");
-        await drive.writeFile("/posts/two.md", "# World");
-        posts = await drive.readdir("/posts");
+        //const [peer] = await once(copy, "peer-open");
+        // You can get a peer's identity from their public key in the connection
+        //console.log("Connected to peer", peer.remotePublicKey.toString("hex"));
+        const contents = await copy.readFile("/example.txt", "utf8");
+
+        console.log("Read file from remote", { contents });
+
+        try {
+          // You can not write to drives you loaded from elsewhere
+          await copy.writeFile("example2.txt", "Goodbye World");
+        } catch (e) {
+          console.error(e.message);
+        }
       }
-
-      console.log("Inside the posts folder", { posts });
-      log += `<br/>Inside the posts folder: ` + { posts };
-
-      // You can get info about a path using `stat`
-      stats = await drive.stat(initFile);
-      console.log("Stats about example text", stats[0]);
-      log += `<br/>Stats about example text: ` + stats[0];
-
-      // You can stop seeding the Hyperdrive by closing it
-      await drive.close();
-
-      console.log("Closed");
-
-      log += `<br/>Closed.`;
     } finally {
       // Make sure to always close the SDK when you're done
       // This will remove entries from the p2p network
       // Which is important for speeding up peer discovery
-      await close();
+      //await close1();
+      //await close2();
     }
   }
+
+  const handleSubmit = async () => {
+    if (value && value.length == 64) {
+      var { Hyperdrive: Hyperdrive2, close: close2 } = await SDK(sdkOpts);
+
+      // Load the drive on the second peer using the key
+      const copy2 = Hyperdrive2(value);
+
+      await copy2.ready();
+
+      console.log("Loaded drive on other peer", copy2.key.toString("hex"));
+      log += `<br/>Loaded drive on other peer ${copy2.key.toString("hex")} ${
+        copy2.writable
+      }`;
+
+      if (copy2.peers.length) {
+        console.log("Already found peers for drive");
+      } else {
+        console.log("Waiting for peers to connect");
+        copy2.on("peer-open", () => {
+          console.log("peer opened!");
+        });
+        const [peer] = await once(copy2, "peer-open");
+        // You can get a peer's identity from their public key in the connection
+        console.log("Connected to peer", peer.remotePublicKey);
+      }
+
+      const contents = await copy2.readFile(DID_DOC_FILENAME, "utf8");
+      buddy = contents;
+      console.log("Copy2 Read file from original", { contents });
+    }
+  };
 </script>
 
 <style>
@@ -120,4 +172,11 @@
   <br />
 
   {#if stats && stats[0]}{stats[0].mtime.toString()}{/if}
+</div>
+<div>
+  <form on:submit|preventDefault={handleSubmit}>
+    Add a peer's :
+    <br />
+    <input type="text" on:click={handleSubmit} bind:value />
+  </form>
 </div>

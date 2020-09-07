@@ -1,7 +1,7 @@
 <script>
-  export let searchState
-  export let disabled
-  $: disabled = !!searchState
+  export let searchState;
+  export let disabled;
+  $: disabled = !!searchState;
 </script>
 
 <style>
