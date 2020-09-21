@@ -5,28 +5,17 @@
 
   //svelte stores
   import {
-    lockerSection,
-    deviceType,
-    deviceName,
     username,
-    password,
-    ipfsNode,
-    wallet,
-    rootCidPem,
-    dataPeerId,
-    dnsLink,
-    serviceEndpoint,
-    identity,
     did
   } from '../../js/stores.js'
 
   let pageSaved = false
 
   const savePage = async () => {
-        console.log(`Step 5: Save username to Fauna`)
+        console.log(`Step 5: Save username & DID to Fauna`)
         pageSaved = await pro.savePage({
           username: $username,
-          ipns: $did.replace('did:ipid:', '/ipns/'),
+          did: $did
         })
   }
 

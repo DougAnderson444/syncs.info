@@ -6,7 +6,7 @@ import { DATA_FOLDER_KEY_NAME } from "./constants";
 //  count.useLocalStorage();
 const createWritableStore = (key, startValue) => {
   const { subscribe, set } = writable(startValue);
-  
+
   return {
     subscribe,
     set,
@@ -15,13 +15,13 @@ const createWritableStore = (key, startValue) => {
       if (json) {
         set(JSON.parse(json));
       }
-      
-      subscribe(current => {
+
+      subscribe((current) => {
         window.localStorage.setItem(key, JSON.stringify(current));
       });
-    }
+    },
   };
-}
+};
 
 export const ipfsNode = writable(0);
 export const nodeId = writable(0);
@@ -32,30 +32,34 @@ export const appSection = writable(0);
 export const lockerSection = writable(0);
 export const backgroundComponents = writable([]);
 
-export const username = createWritableStore('username', "");
+export const username = createWritableStore("username", "");
 export const password = writable("");
 
 export const deviceName = writable(0);
 export const deviceType = writable(0);
+export const name = writable(0);
+
 export const error = writable(0);
 export const dnsSuccess = writable(0);
 
 export const wallet = writable(0);
 export const identity = writable(0);
 export const did = writable(0);
-export const rootCidStr = createWritableStore('rootCidStr', 0);
+export const rootCidStr = createWritableStore("rootCidStr", 0);
 export const rootCidPem = writable(0);
 export const dataPeerId = writable(0);
 export const dnsLink = writable(0);
 
 export const publishingOn = writable(0);
-export const serviceEndpoint = createWritableStore('serviceEndpoint', "");
+export const serviceEndpoint = createWritableStore("serviceEndpoint", "");
 export const aesKey32 = writable(0);
 
-export const openHyperdrive = writable(0);
-export const closeHyperdrive = writable(0);
+export const makeDrives = writable(0);
+export const makeCores = writable(0);
 
-const pub = async([$dataRootHash]) => {
+export const drive = writable(0);
+
+const pub = async ([$dataRootHash]) => {
   console.log(`Publishing $dataRootHash: `, $dataRootHash);
   /*
   try {

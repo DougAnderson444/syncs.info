@@ -66,33 +66,6 @@ module.exports = {
             },
           },
         },
-        /* */
-        {
-          test: /\.m?js$/,
-          exclude: /(node_modules)/,
-          use: {
-            loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-env"],
-              plugins: ["@babel/plugin-transform-runtime",
-                [
-                  "babel-plugin-module-resolver",
-                  {
-                    alias: {
-                      "sodium-native": "@geut/sodium-javascript-plus",
-                      "sodium-universal": "@geut/sodium-javascript-plus",
-                      "dat-dns": "dat-sdk/dns-web.js",
-                      hyperswarm: "hyperswarm-web",
-                      util: "./node_modules/util/util.js",
-                    },
-                  },
-                ],
-              ],
-              cacheDirectory: true,
-            },
-          },
-        },
-        /**/
       ],
     },
     mode,

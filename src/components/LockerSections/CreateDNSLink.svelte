@@ -23,10 +23,10 @@
   let enabled = false
 
   const recordDNSLink = async () => {
-        console.log(`Step 3: Create dnslink=/ipns/DIDDoc`)
+        console.log(`Step 3: Create datkey={key}`)
         $dnsLink = await pro.recordDNSLink(
           $username,
-          $did.replace('did:ipid:', '/ipns/'),
+          $did.replace('did:hyper:', ''),
           DID_DOC_TLD,
         )
   }

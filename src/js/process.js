@@ -8,12 +8,12 @@ var Buffer = require("buffer/").Buffer; // note: the trailing slash is important
 
 const LOCK_TYPE = "passphrase";
 
-export const recordDNSLink = async (username, ipnsHash, tld) => {
+export const recordDNSLink = async (username, key, tld) => {
   try {
     // add DNS record
     const dnsConfirmationCode = await fetch(
       `/api/dns?subdomain=${encodeURI(username)}&hash=${encodeURI(
-        ipnsHash
+        key
       )}&tld=${encodeURI(tld)}`
     );
     return await dnsConfirmationCode.text();
@@ -62,7 +62,9 @@ export const createNewIdentity = async (
   username,
   password,
   deviceName,
-  deviceType
+  deviceType,
+  drive,
+  name
 ) => {
   console.log(`Step 2: Create Master keypair`);
   const { algorithm, mnemonic, seed, masterKeyPair } = await passwordToPem(
@@ -71,11 +73,12 @@ export const createNewIdentity = async (
   );
 
   console.log(`Step 3: Create identity: ${username}`);
-  return await wallet.identities.create("ipid", {
+  return await wallet.identities.create("hyper", {
+    drive,
     profileDetails: {
       "@context": "https://schema.org",
       "@type": "Person",
-      name: username,
+      name,
     },
     deviceInfo: {
       type: deviceType,

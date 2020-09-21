@@ -26,6 +26,7 @@
     lockerSection,
     deviceType,
     deviceName,
+    name,
     ipfsNode,
     backgroundComponents,
     wallet,
@@ -37,6 +38,7 @@
   const LOCK_TYPE = 'passphrase'
   $deviceName = 'My Samsung'
   $deviceType = DEVICE_TYPES[0]
+  $name = 'Identity Name'
   let selectedDeviceType = $deviceType
   let disabled = true
   $: $ipfsNode ? (disabled = false) : (disabled = true)
@@ -64,8 +66,22 @@
   }
 </style>
 
-<h3>Select what type of device this is (it's smart to add a few devices)</h3>
+<h3>Name/Nickname this identity (so you can tell them apart)</h3>
+<div class="vert">
+  <Textfield
+    bind:value={$name}
+    on:focus|once={() => {
+      $name = ''
+    }}
+    variant="outlined"
+    label="Identity Name"
+    input$aria-controls="helper-text-outlined-device"
+    input$aria-describedby="helper-text-outlined-device"
+    autocomplete="nickname" />
+  <HelperText id="helper-text-outlined-device">Doug, Acme Law Office, etc.</HelperText>
+</div>
 
+<h3>Type of device (it's smart to add a few devices)</h3>
 <div class="narrow vert">
   <List class="list" radiolist>
     {#each DEVICE_TYPES as device}

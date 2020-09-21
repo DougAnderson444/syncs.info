@@ -1,37 +1,43 @@
 <script>
-  import * as pro from '../../js/process'
-  import ProgressStatus from '../AppSections/Display/ProgressStatus.svelte'
+  import * as pro from "../../js/process";
+  import ProgressStatus from "../AppSections/Display/ProgressStatus.svelte";
 
   //svelte stores
   import {
     deviceType,
     deviceName,
+    name,
     username,
     password,
     wallet,
     identity,
     did,
-  } from '../../js/stores.js'
+    makeDrives
+  } from "../../js/stores.js";
 
-  const LOCK_TYPE = 'passphrase'
-  let enabled = false
+  const LOCK_TYPE = "passphrase";
+  let enabled = false;
 
   const createNewIdentity = async () => {
-    console.log(`Step 2. Create Identity (DID)`) //edit version
-    //identity = await
+    console.log(`Step 2. Create Identity (DID)`);
+
+    const drive = $makeDrives($name);
+
     $identity = await pro.createNewIdentity(
       $wallet,
       $username,
       $password,
       $deviceName,
       $deviceType,
-    )
-    $did = await $identity.getDid()
+      drive,
+      $name
+    );
+    $did = await $identity.getDid();
     //backup = await identity.backup.getData()
-  }
+  };
 
-  $: enabled = $wallet.locker.getLock(LOCK_TYPE).isEnabled()
-  $: if (enabled && !$identity) createNewIdentity()
+  $: enabled = $wallet.locker.getLock(LOCK_TYPE).isEnabled();
+  $: if (enabled && !$identity) createNewIdentity();
 </script>
 
 <ProgressStatus bind:awaiting={$did}>

@@ -1,14 +1,16 @@
 <script>
-  import Nav from '../components/Nav.svelte'
-  import IPFSComp from '../components/IPFSComp.svelte'
-  import HyperComp from "../components/HyperComp.svelte";
-  import { onMount } from 'svelte'
+  import Nav from "../components/Nav.svelte";
+  import IPFSComp from "../components/IPFSComp.svelte";
+  import HyperComponent from "hyper-svelte-component";
+  import { onMount } from "svelte";
+  //svelte stores
+  import { makeDrives, makeCores } from "../js/stores.js";
 
-  export let segment
-  let mounted
+  export let segment;
+  let mounted;
   onMount(async () => {
-    mounted = true
-  })
+    mounted = true;
+  });
 </script>
 
 <style>
@@ -28,6 +30,7 @@
   <main>
     <slot />
   </main>
+
+  <!--IPFSComp /-->
+  <!-- HyperComponent SDK={window.datSDK} bind:Hyperdrive={$makeDrives} bind:Hypercore={$makeCores} /-->
 {/if}
-<IPFSComp />
-<!-- HyperComp / -->

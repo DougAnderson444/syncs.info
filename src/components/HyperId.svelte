@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import HyperComponent from "hyper-svelte-component";
   import ObjectComp from "./Utility/ObjectComp.svelte";
-  import createDidHyper, { resolve, getDid } from "js-did-hyper";
+  import createDidHyper, { getDid } from "js-did-hyper";
   const once = require("events.once"); // polyfill for nodejs events.once in the browser
   //const { once } = require("events"); //doesn't work, need the polyfill for browsers
 
@@ -10,7 +10,7 @@
   export let makeDrives; // passed from <Hyperdrive > binding
   export let makeDriveCopies;
 
-  let hyperId;
+  let hyperId, mountKey;
   let dougsDrive, rangersDrive;
   let dougsDid, rangersDid;
   let copyDrive;
@@ -67,7 +67,7 @@
   const doDid = async () => {
     try {
       // use that drive to make a hyperId
-      hyperId = await createDidHyper(makeDrives);
+      hyperId = createDidHyper(makeDrives);
 
       const createOps = document => {
         document.addPublicKey({
@@ -77,7 +77,7 @@
         });
       };
 
-      initialContents = await hyperId.create(createOps);
+      initialContents = await hyperId.create(dougsDrive, createOps);
 
       const updateOps = document => {
         document.addPublicKey({
@@ -87,10 +87,10 @@
         });
       };
 
-      updatedContents = await hyperId.update(updateOps);
+      updatedContents = await hyperId.update(dougsDrive, updateOps);
 
       // get the DID of this hyperId
-      did = await hyperId.getDid();
+      did = await getDid(dougsDrive);
 
       // get the DID Doc of this DID (if possible)
       resolveSelfContents = await hyperId.resolve(did);
@@ -114,6 +114,24 @@
       buddy = "";
       const resolveBuddyContents = await hyperId.resolve(peerDid);
       buddy = resolveBuddyContents;
+      disabled = false;
+    }
+  };
+
+  const handleMount = async () => {
+    if (mountKey && mountKey.length == 64) {
+      disabled = true;
+
+      dougsDrive.mount("mount", Buffer.from(mountKey, "hex"), (err) => {
+        if (err) throw err
+        dougsDrive.readdir("/", { recursive: true }, (err, dirs) => {
+          console.log(dirs);
+        });
+        dougsDrive.readFile("mount/did-doc-hyper.txt", (err, file) => {
+          console.log(file); //"utf8",
+        });
+      });
+
       disabled = false;
     }
   };
@@ -256,4 +274,17 @@
 
     </p>
   {/if}
+
+  <div>
+    <form class="form" on:submit|preventDefault={handleMount}>
+      Mount a peer's drive (enter their key: abc123abc123...):
+      <br />
+      <input
+        type="text"
+        on:click|preventDefault={handleMount}
+        bind:value={mountKey}
+        {disabled} />
+    </form>
+  </div>
+
 </main>
