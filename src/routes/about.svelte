@@ -1,5 +1,6 @@
 <script>
   import KappaChat from "../components/KappaChat.svelte";
+  import HyperId from '../components/HyperId.svelte'
 </script>
 
 
@@ -18,9 +19,12 @@
     https://github.com/DougAnderson444/syncs.info
   </a>
 </p>
-<br />
+Ignore the stuff down here...
+<!--br />
 Chat App:
 <br />
-<KappaChat />
+<KappaChat /-->
 <br />
-QED.
+HyPNS
+<br />
+<HyperId />

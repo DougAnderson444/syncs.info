@@ -6,6 +6,9 @@
   const once = require("events.once"); // polyfill for nodejs events.once in the browser
   //const { once } = require("events"); //doesn't work, need the polyfill for browsers
 
+  const RAI = require("random-access-idb");
+  var storage = RAI("some-hyper-storage");
+
   //export let SDK; // passed from App.svelte, which comes from window.datSDK in index.html
   export let makeDrives; // passed from <Hyperdrive > binding
   export let makeDriveCopies;
@@ -157,7 +160,7 @@
   }
 </style>
 
-<HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDrives} />
+<HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDrives} sdkOpts={{storage, persist: true}} />
 <HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDriveCopies} />
 <main>
   <h1>Demo the HyperDid!</h1>
