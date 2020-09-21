@@ -131,14 +131,17 @@
     if (mountKey && mountKey.length == 64) {
       disabled = true;
 
-      dougsDrive.mount("mount", Buffer.from(mountKey, "hex"), err => {
-        if (err) throw err;
-        dougsDrive.readdir("/", { recursive: true }, (err, dirs) => {
-          console.log(dirs);
-        });
-        dougsDrive.readFile("mount/did-doc-hyper.txt", (err, file) => {
-          console.log(file); //"utf8",
-        });
+      try {
+        await dougsDrive.mount("mount", Buffer.from(mountKey, "hex"));
+      } catch (error) {
+        console.error(error);
+      }
+
+      dougsDrive.readdir("/", { recursive: true }, (err, dirs) => {
+        console.log(dirs);
+      });
+      dougsDrive.readFile("mount/did-doc-hyper.txt", "utf8", (err, file) => {
+        console.log(file); //"utf8",
       });
 
       disabled = false;
