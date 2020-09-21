@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
   // TODO: Get old record id 
   // TODO: delete it (it's obsolete now!)
 
-  const dnslinkurl = `dnslink=${req.query.hash}`;
+  const dnslinkurl = `datkey=${req.query.hash}`; // TODO: make did:method:... instead?
 
   let dataObj = {
     name: req.query.subdomain, //"_dnslink",  //subdomain
