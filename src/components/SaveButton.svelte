@@ -1,11 +1,10 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
-  const dispatch = createEventDispatcher()
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
 
-  export let saveState
-  export let disabled
-  $: disabled = !!saveState
-
+  export let saveState;
+  export let disabled;
+  $: disabled = !!saveState;
 </script>
 
 <style>
@@ -32,7 +31,11 @@
   }
 </style>
 
-<button {disabled} class={saveState} on:click={() => dispatch('click')} id='save-button'>
+<button
+  {disabled}
+  class={saveState}
+  on:click={() => dispatch('click')}
+  id="save-button">
   {#if saveState == 'SAVING'}
     ⏳
   {:else if saveState == 'ERROR'}
