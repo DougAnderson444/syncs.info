@@ -6,8 +6,8 @@
   const once = require("events.once"); // polyfill for nodejs events.once in the browser
   //const { once } = require("events"); //doesn't work, need the polyfill for browsers
 
-  const RAI = require("random-access-idb");
-  var storage = RAI("some-hyper-storage");
+  //const RAI = require("random-access-idb");
+  //var storage = RAI("some-hyper-storage");
 
   //export let SDK; // passed from App.svelte, which comes from window.datSDK in index.html
   export let makeDrives; // passed from <Hyperdrive > binding
@@ -79,8 +79,11 @@
           publicKeyPem: "master.publicKey"
         });
       };
-
-      initialContents = await hyperId.create(dougsDrive, createOps);
+      try {
+        initialContents = await hyperId.create(dougsDrive, createOps);
+      } catch (error) {
+        console.error(error);
+      }
 
       const updateOps = document => {
         document.addPublicKey({
@@ -90,8 +93,11 @@
         });
       };
 
-      updatedContents = await hyperId.update(dougsDrive, updateOps);
-
+      try {
+        updatedContents = await hyperId.update(dougsDrive, updateOps);
+      } catch (error) {
+        console.error(error);
+      }
       // get the DID of this hyperId
       did = await getDid(dougsDrive);
 
@@ -125,8 +131,8 @@
     if (mountKey && mountKey.length == 64) {
       disabled = true;
 
-      dougsDrive.mount("mount", Buffer.from(mountKey, "hex"), (err) => {
-        if (err) throw err
+      dougsDrive.mount("mount", Buffer.from(mountKey, "hex"), err => {
+        if (err) throw err;
         dougsDrive.readdir("/", { recursive: true }, (err, dirs) => {
           console.log(dirs);
         });
@@ -160,7 +166,10 @@
   }
 </style>
 
-<HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDrives} sdkOpts={{storage, persist: true}} />
+<HyperComponent
+  SDK={window.datSDK}
+  bind:Hyperdrive={makeDrives}
+  sdkOpts={{ persist: true }} />
 <HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDriveCopies} />
 <main>
   <h1>Demo the HyperDid!</h1>
@@ -174,6 +183,9 @@
         Loading Doug's Drive
       {:then resolved}
         Doug's Drive: {dougsDrive.key.toString('hex')}
+        <br />
+        Writable?{dougsDrive.writable}
+        <br />
       {:catch error}
         <!-- promise was rejected -->
         <p>Something went wrong: {error.message}</p>
