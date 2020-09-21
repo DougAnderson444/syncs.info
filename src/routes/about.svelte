@@ -1,8 +1,14 @@
 <script>
+  import { onMount } from "svelte";
   import KappaChat from "../components/KappaChat.svelte";
-  import HyperId from '../components/HyperId.svelte'
+  import HyperId from "../components/HyperId.svelte";
+  let mounted = false;
+  onMount(() => {
+	  console.log(`sdk: `, window.datSdk);
+	  console.log(`SDK: `, SDK);
+    mounted = true;
+  });
 </script>
-
 
 <svelte:head>
   <title>About Syncs.Info</title>
@@ -27,4 +33,6 @@ Chat App:
 <br />
 HyPNS
 <br />
-<HyperId />
+{#if mounted}
+  <HyperId />
+{/if}

@@ -33,11 +33,12 @@
   </head>
   <body>
     <script src="sdkappa-bundle.js"></script>
-<!-- kappa-bundle comes from hyper-kappa-chat-app build-->
+    <!-- kappa-bundle comes from hyper-kappa-chat-app build-->
     <script src="dat-sdk-bundle.js"></script>
     <script>
-
+      console.log(`sdk: `, window.datSDK);
       const SDK = window.datSDK;
+      console.log(`sdk: `, SDK);
     </script>
     <!-- The application will be rendered inside this element,
 	     because `src/client.js` references it -->
