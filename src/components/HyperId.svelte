@@ -142,6 +142,7 @@
       });
       dougsDrive.readFile("mount/did-doc-hyper.txt", "utf8", (err, file) => {
         console.log(file); //"utf8",
+        buddy = JSON.parse(file)
       });
 
       disabled = false;
