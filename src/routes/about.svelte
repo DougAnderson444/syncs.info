@@ -23,9 +23,8 @@
     https://github.com/DougAnderson444/syncs.info
   </a>
 </p>
-Ignore the stuff down here...
 <br />
-Chat App:
+Here's an example Chat App you can use syncs.info for:
 <br />
 <KappaChat />
 <!--br />
