@@ -12,6 +12,26 @@
   //export let SDK; // passed from App.svelte, which comes from window.datSDK in index.html
   export let makeDrives; // passed from <Hyperdrive > binding
   export let makeDriveCopies;
+  let sdkOpts = {
+    persist: true,
+    /*
+    swarmOpts: {
+      simplePeer: {
+        config: {
+          iceServers: [
+            {
+              urls: process.env.SAPPER_APP_TURN_SERVER,
+              username: process.env.SAPPER_APP_TURN_USERNAME,
+              credential: SAPPER_APP_TURN_PASSWORD
+            },
+            {
+              urls: ["stun:stun.l.google.com:19302", "stun:global.stun.twilio.com:3478?transport=udp"]
+            }
+          ]
+        }
+      }
+    }*/
+  };
 
   let hyperId, mountKey;
   let dougsDrive, rangersDrive;
@@ -142,7 +162,7 @@
       });
       dougsDrive.readFile("mount/did-doc-hyper.txt", "utf8", (err, file) => {
         console.log(file); //"utf8",
-        buddy = JSON.parse(file)
+        buddy = JSON.parse(file);
       });
 
       disabled = false;
@@ -170,10 +190,7 @@
   }
 </style>
 
-<HyperComponent
-  SDK={window.datSDK}
-  bind:Hyperdrive={makeDrives}
-  sdkOpts={{ persist: true }} />
+<HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDrives} {sdkOpts} />
 <HyperComponent SDK={window.datSDK} bind:Hyperdrive={makeDriveCopies} />
 <main>
   <h1>Demo the HyperDid!</h1>

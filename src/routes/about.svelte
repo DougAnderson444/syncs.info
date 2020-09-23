@@ -24,13 +24,14 @@
   </a>
 </p>
 Ignore the stuff down here...
-<!--br />
+<br />
 Chat App:
 <br />
-<KappaChat /-->
-<br />
+<KappaChat />
+<!--br />
 HyPNS
 <br />
 {#if mounted}
   <HyperId />
 {/if}
+-->
